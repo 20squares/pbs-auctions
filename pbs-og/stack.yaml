@@ -8,7 +8,7 @@
 # A snapshot resolver dictates the compiler version and the set of packages
 # to be used for project dependencies. For example:
 #
-# resolver: lts-3.5
+resolver: lts-20.4
 # resolver: nightly-2015-09-21
 # resolver: ghc-7.10.2
 #
@@ -17,8 +17,8 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver:
-  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/20/2.yaml
+# resolver:
+#  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/20/2.yaml
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -35,10 +35,9 @@ packages:
 # These entries can reference officially published versions as well as
 # forks / in-progress versions pinned to a git hash. For example:
 #
-# extra-deps:
-# - acme-missiles-0.3
-# - git: https://github.com/commercialhaskell/stack.git
-#   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
+extra-deps:
+ - git: https://github.com/philipp-zahn/open-games-engine.git
+   commit: 71c230c840b4bf608107b5e836ef64dc96e2bef5
 #
 # extra-deps: []
 
