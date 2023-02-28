@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Auctions.AuctionSupportFunctions
+      Auctions.InterfacePBS
       Auctions.SimultaneousBidAuction
       Auctions.Types
   other-modules:

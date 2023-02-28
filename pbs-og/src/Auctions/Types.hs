@@ -13,6 +13,8 @@ type WinningBidValue = BidValue
 
 type Bid = (Agent, BidValue)
 
+type Relay = [Bid]
+
 type AuctionOutcome = (Agent, BidValue, BlockWon)
 
 type BlockWon = Bool
