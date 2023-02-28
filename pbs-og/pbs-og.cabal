@@ -25,7 +25,9 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Auctions.AuctionSupportFunctions
+      Auctions.SimultaneousBidAuction
+      Auctions.Types
   other-modules:
       Paths_pbs_og
   hs-source-dirs:
