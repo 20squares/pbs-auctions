@@ -132,29 +132,29 @@ bidding2ReservePrice winningPrice valueSpace1 valueSpace2 actionSpace1 actionSpa
    :-----------------:
    inputs    :      ;
    feedback  :      ;
-   operation : natureDrawsTypeStage "Alice" valueSpace1 ;
+   operation : natureDrawsTypeStage "Relayn" valueSpace1 ;
    outputs   :  aliceValue ;
    returns   :      ;
 
    inputs    :      ;
    feedback  :      ;
-   operation : natureDrawsTypeStage "Bob" valueSpace2;
+   operation : natureDrawsTypeStage "Builderm" valueSpace2;
    outputs   :  bobValue ;
    returns   :      ;
 
    inputs    :  aliceValue    ;
    feedback  :      ;
-   operation :  biddingStage "Alice" actionSpace1 ;
+   operation :  biddingStage "Relayn" actionSpace1 ;
    outputs   :  aliceDec ;
    returns   :  payments  ;
 
    inputs    :  bobValue    ;
    feedback  :      ;
-   operation :  biddingStage "Bob" actionSpace2 ;
+   operation :  biddingStage "Builderm" actionSpace2 ;
    outputs   :  bobDec ;
    returns   :  payments  ;
 
-   inputs    :  ([("Alice",aliceDec),("Bob",bobDec)],reservePrice)  ;
+   inputs    :  ([("Relayn",aliceDec),("Builderm",bobDec)],reservePrice)  ;
    feedback  :      ;
    operation :  transformPaymentsReservePrice winningPrice  ;
    outputs   :  payments ;
@@ -177,29 +177,29 @@ bidding2ReservePriceExogenous winningPrice reservePrice valueSpace1 valueSpace2 
    :-----------------:
    inputs    :      ;
    feedback  :      ;
-   operation : natureDrawsTypeStage "Alice" valueSpace1 ;
+   operation : natureDrawsTypeStage "Relayn" valueSpace1 ;
    outputs   :  aliceValue ;
    returns   :      ;
 
    inputs    :      ;
    feedback  :      ;
-   operation : natureDrawsTypeStage "Bob" valueSpace2 ;
+   operation : natureDrawsTypeStage "Builderm" valueSpace2 ;
    outputs   :  bobValue ;
    returns   :      ;
 
    inputs    :  aliceValue    ;
    feedback  :      ;
-   operation :  biddingStage "Alice" actionSpace1 ;
+   operation :  biddingStage "Relayn" actionSpace1 ;
    outputs   :  aliceDec ;
    returns   :  payments  ;
 
    inputs    :  bobValue    ;
    feedback  :      ;
-   operation :  biddingStage "Bob" actionSpace2 ;
+   operation :  biddingStage "Builderm" actionSpace2 ;
    outputs   :  bobDec ;
    returns   :  payments  ;
 
-   inputs    :  [("Alice",aliceDec),("Bob",bobDec)]  ;
+   inputs    :  [("Relayn",aliceDec),("Builderm",bobDec)]  ;
    feedback  :      ;
    operation :   transformPayments winningPrice reservePrice ;
    outputs   :  payments ;
@@ -219,29 +219,29 @@ bidding2AllPay  valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame|
    :-----------------:
    inputs    :      ;
    feedback  :      ;
-   operation : natureDrawsTypeStage "Alice" valueSpace1 ;
+   operation : natureDrawsTypeStage "Relayn" valueSpace1 ;
    outputs   :  aliceValue ;
    returns   :      ;
 
    inputs    :      ;
    feedback  :      ;
-   operation : natureDrawsTypeStage "Bob" valueSpace2 ;
+   operation : natureDrawsTypeStage "Builderm" valueSpace2 ;
    outputs   :  bobValue ;
    returns   :      ;
 
    inputs    :  aliceValue    ;
    feedback  :      ;
-   operation :  biddingStage "Alice" actionSpace1 ;
+   operation :  biddingStage "Relayn" actionSpace1 ;
    outputs   :  aliceDec ;
    returns   :  payments  ;
 
    inputs    :  bobValue    ;
    feedback  :      ;
-   operation :  biddingStage "Bob" actionSpace2 ;
+   operation :  biddingStage "Builderm" actionSpace2 ;
    outputs   :  bobDec ;
    returns   :  payments  ;
 
-   inputs    :  [("Alice",aliceDec),("Bob",bobDec)]  ;
+   inputs    :  [("Relayn",aliceDec),("Builderm",bobDec)]  ;
    feedback  :      ;
    operation :  transformAllPayPayments ;
    outputs   :  payments ;

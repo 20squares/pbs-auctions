@@ -1,4 +1,4 @@
-module InterfacePBS
+module Auctions.InterfacePBS
   where
 
 import Auctions.Types
