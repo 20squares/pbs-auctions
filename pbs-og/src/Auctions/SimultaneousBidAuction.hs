@@ -99,10 +99,31 @@ transformPayments winningPrice reservePrice = [opengame|
    returns   :      ;
   |]
 
+-- Transforms the bids into a random reshuffling
+transformAllPayPayments  = [opengame|
+
+   inputs    : bids ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    : bids ;
+   feedback  :      ;
+   operation : forwardFunction auctionPaymentAllPay ;
+   outputs   : payments ;
+   returns   :      ;
+   :-----------------:
+
+   outputs   : payments ;
+   returns   :      ;
+  |]
+
+
+  
 -----------------------
 -- 2 Assembled auctions
 
 -- 2 players with reserve price
+-- NOTE this format allows for first price, second price w/o reserve price
 bidding2ReservePrice winningPrice valueSpace1 valueSpace2 actionSpace1 actionSpace2 = [opengame| 
 
    inputs    : reservePrice    ;
@@ -146,8 +167,9 @@ bidding2ReservePrice winningPrice valueSpace1 valueSpace2 actionSpace1 actionSpa
 
 
 
--- 2 players without reserve price
-bidding2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+-- 2 players with exogenous reserve price
+-- NOTE this format allows for first price, second price w/o reserve price
+bidding2ReservePriceExogenous winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
 
    inputs    :      ;
    feedback  :      ;
@@ -180,6 +202,48 @@ bidding2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSp
    inputs    :  [("Alice",aliceDec),("Bob",bobDec)]  ;
    feedback  :      ;
    operation :   transformPayments winningPrice reservePrice ;
+   outputs   :  payments ;
+   returns   :      ;
+   :-----------------:
+
+   outputs   :      ;
+   returns   :      ;
+   |]
+
+-- 3 allpay auction with 2 players
+bidding2AllPay  valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+
+   inputs    :      ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    :      ;
+   feedback  :      ;
+   operation : natureDrawsTypeStage "Alice" valueSpace1 ;
+   outputs   :  aliceValue ;
+   returns   :      ;
+
+   inputs    :      ;
+   feedback  :      ;
+   operation : natureDrawsTypeStage "Bob" valueSpace2 ;
+   outputs   :  bobValue ;
+   returns   :      ;
+
+   inputs    :  aliceValue    ;
+   feedback  :      ;
+   operation :  biddingStage "Alice" actionSpace1 ;
+   outputs   :  aliceDec ;
+   returns   :  payments  ;
+
+   inputs    :  bobValue    ;
+   feedback  :      ;
+   operation :  biddingStage "Bob" actionSpace2 ;
+   outputs   :  bobDec ;
+   returns   :  payments  ;
+
+   inputs    :  [("Alice",aliceDec),("Bob",bobDec)]  ;
+   feedback  :      ;
+   operation :  transformAllPayPayments ;
    outputs   :  payments ;
    returns   :      ;
    :-----------------:

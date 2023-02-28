@@ -6,6 +6,7 @@ import OpenGames.Engine.Engine (Agent,Stochastic,uniformDist)
 
 import Data.List (maximumBy, sortBy, permutations)
 import Data.Ord (comparing)
+import GHC.Base (bindIO)
 
 {--
 Contains basic functionality needed for different auction formats
@@ -42,13 +43,13 @@ auctionWinnerReservePrice reservePrice kmax ((name,b):bs) =
   if b < kmax || b < reservePrice
      then (name,b,False) : auctionWinner kmax bs
      else (name,b,True)  : auctionWinner kmax bs
-  where
-    -- Mark the auctionWinners
-    auctionWinner :: BidValue -> [Bid] -> [(Agent, BidValue,Bool)]
-    auctionWinner _    []            = []
-    auctionWinner kmax ((name,b):bs) =
-      if b < kmax then (name,b,False) : auctionWinner kmax bs
-                  else (name,b,True)  : auctionWinner kmax bs
+
+-- Mark the auctionWinners
+auctionWinner :: BidValue -> [Bid] -> [AuctionOutcome]
+auctionWinner _    []            = []
+auctionWinner kmax ((name,b):bs) =
+  if b < kmax then (name,b,False) : auctionWinner kmax bs
+              else (name,b,True)  : auctionWinner kmax bs
 
 
 
@@ -57,42 +58,50 @@ auctionWinnerReservePrice reservePrice kmax ((name,b):bs) =
 ----------------
 
 -- k- price auction rule, i.e. the sequence for winning bidders is ignored, winners always pay k-highest price
-paymentReservePrice :: ReservePrice -> WinningBidValue ->  [(Agent,BidValue,Bool)] -> [Bid]
+paymentReservePrice :: ReservePrice -> WinningBidValue ->  [(Agent,BidValue,Bool)] -> [AuctionOutcome]
 paymentReservePrice _        _     []                     = []
 paymentReservePrice resPrice kmax  ((name,bid,winner):ls)
-  | winner && bid >= resPrice = (name,bid) : payment resPrice kmax  ls
-  | winner && bid <  resPrice = (name,resPrice) : payment resPrice kmax  ls
-  | otherwise                 =  (name,0) : payment resPrice kmax  ls
+  | winner && bid >= resPrice = (name,bid, winner) : payment resPrice kmax  ls
+  | winner && bid <  resPrice = (name,resPrice, winner) : payment resPrice kmax  ls
+  | otherwise                 =  (name,0, winner ) : payment resPrice kmax  ls
   where
     -- k- price auction rule,  winners always pay k-highest price
-    payment :: ReservePrice -> WinningBidValue -> [(Agent,BidValue,Bool)] -> [Bid]
+    payment :: ReservePrice -> WinningBidValue -> [(Agent,BidValue,Bool)] -> [AuctionOutcome]
     payment _        _     []                     = []
     payment resPrice kmax  ((name,bid,winner):ls) =
       if winner
-          then (name,kmax) : payment resPrice kmax ls
-          else (name,0) : payment resPrice kmax ls
-
+          then (name,kmax, winner) : payment resPrice kmax ls
+          else (name,0, winner) : payment resPrice kmax ls
 
 -- Select the payment for a player given the list of payments
-selectPayoffs :: Agent -> [Bid] -> BidValue
-selectPayoffs name [] = 0
-selectPayoffs name ((n,p):ls) = if name == n then p else selectPayoffs name ls
+selectPayoffs :: Agent -> [AuctionOutcome] -> (BidValue,BlockWon)
+selectPayoffs name [] = (0,False)
+selectPayoffs name ((n,p,w):ls) = if name == n then (p,w) else selectPayoffs name ls
 
 -- Determines the payoff for each player
-setPayoff ::  Bid -> [Bid] -> BidValue
+setPayoff :: (Agent, PrivateValue) -> [AuctionOutcome] -> Payoff
 setPayoff (name,value) payments =
-  if pay == 0 then 0 else value - pay
+  if won == True
+     then value - pay
+     else - pay
   where
-    pay =  selectPayoffs name payments
+    (pay,won) =  selectPayoffs name payments
 
 -- Determine the payments given k-highest price (1,2..) 
-auctionPaymentResPrice :: (ReservePrice -> WinningBidValue -> [(Agent,BidValue,Bool)] -> [Bid])
+auctionPaymentResPrice :: (ReservePrice -> WinningBidValue -> [(Agent,BidValue,Bool)] -> [AuctionOutcome])
                  -- ^ Payment function
                  -> WinningPrice
                  -- ^ Which price determines outcome?
-                 -> ([Bid],BidValue)
-                 -- ^ List of bids with highest value
-                 -> [Bid]
+                 -> ([Bid],ReservePrice)
+                 -- ^ List of bids with reserve price
+                 -> [AuctionOutcome]
 auctionPaymentResPrice paymentFunction winningPrice (ls,reservePrice) =
    paymentFunction reservePrice kMax (auctionWinnerReservePrice reservePrice kMax ls)
    where kMax = kMaxBidReservePrice reservePrice winningPrice ls
+
+-- All pay auction rule, i.e. every player pays the bid
+-- NOTE that we include the information on winning 
+auctionPaymentAllPay :: [Bid] -> [AuctionOutcome]
+auctionPaymentAllPay ls =
+  let kmax = kMaxBid 1 ls -- ^ Determine the winning bid
+      in  auctionWinner kmax ls 
