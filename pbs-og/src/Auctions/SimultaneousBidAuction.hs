@@ -7,11 +7,6 @@
 
 
 module Auctions.SimultaneousBidAuction
-  ( bidding2ReservePrice
-  , bidding2
-  , bidding2ExposeWinningBid
-  , truthfulStrat
-  , values)
   where
 
 
@@ -26,16 +21,10 @@ import Auctions.AuctionSupportFunctions
 ---------------
 -- 0 Parameters
 
-type Values = Double 
+-- tbd
 
-values :: [Values]
-values = [0,20..100]
-
-reservePriceParameter :: Double
-reservePriceParameter = 1
-
----------------------
--- 1 The actual games
+---------------
+-- 1 Components
 
 -- Draws a value and creates a pair of _value_ _name_
 natureDrawsTypeStage name valueSpace = [opengame|
@@ -74,8 +63,8 @@ biddingStage name actionSpace = [opengame|
   |]
 
 
--- Transforms the payments into a random reshuffling
-transformPaymentsReservePrice kPrice kSlots = [opengame|
+-- Transforms the bids and the relevant reservePrice into the payments by players
+transformPaymentsReservePrice winningPrice  = [opengame|
 
    inputs    : (bids,reservePrice) ;
    feedback  :      ;
@@ -83,7 +72,7 @@ transformPaymentsReservePrice kPrice kSlots = [opengame|
    :-----------------:
    inputs    : (bids,reservePrice) ;
    feedback  :      ;
-   operation : forwardFunction (auctionPaymentResPrice noLotteryPayment kPrice kSlots 0) ;
+   operation : forwardFunction (auctionPaymentResPrice paymentReservePrice winningPrice) ;
    outputs   : payments ;
    returns   :      ;
    :-----------------:
@@ -92,9 +81,29 @@ transformPaymentsReservePrice kPrice kSlots = [opengame|
    returns   :      ;
   |]
 
+-- Transforms the bids into a random reshuffling
+transformPayments winningPrice reservePrice = [opengame|
 
+   inputs    : bids ;
+   feedback  :      ;
 
-bidding2ReservePrice kPrice kSlots  valueSpace1 valueSpace2 actionSpace1 actionSpace2 = [opengame| 
+   :-----------------:
+   inputs    : (bids, reservePrice) ;
+   feedback  :      ;
+   operation : forwardFunction (auctionPaymentResPrice paymentReservePrice winningPrice) ;
+   outputs   : payments ;
+   returns   :      ;
+   :-----------------:
+
+   outputs   : payments ;
+   returns   :      ;
+  |]
+
+-----------------------
+-- 2 Assembled auctions
+
+-- 2 players with reserve price
+bidding2ReservePrice winningPrice valueSpace1 valueSpace2 actionSpace1 actionSpace2 = [opengame| 
 
    inputs    : reservePrice    ;
    feedback  :      ;
@@ -126,7 +135,7 @@ bidding2ReservePrice kPrice kSlots  valueSpace1 valueSpace2 actionSpace1 actionS
 
    inputs    :  ([("Alice",aliceDec),("Bob",bobDec)],reservePrice)  ;
    feedback  :      ;
-   operation :   transformPaymentsReservePrice kPrice kSlots ;
+   operation :  transformPaymentsReservePrice winningPrice  ;
    outputs   :  payments ;
    returns   :      ;
    :-----------------:
@@ -136,28 +145,9 @@ bidding2ReservePrice kPrice kSlots  valueSpace1 valueSpace2 actionSpace1 actionS
    |]
 
 
----- Without reserve price
--- Transforms the payments into a random reshuffling
-transformPayments kPrice kSlots reservePrice = [opengame|
 
-   inputs    : bids ;
-   feedback  :      ;
-
-   :-----------------:
-   inputs    : bids ;
-   feedback  :      ;
-   operation : forwardFunction (auctionPayment noLotteryPayment reservePrice kPrice kSlots 0) ;
-   outputs   : payments ;
-   returns   :      ;
-   :-----------------:
-
-   outputs   : payments ;
-   returns   :      ;
-  |]
-
-
--- Instantiates a simplified version with two players
-bidding2 kPrice kSlots reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+-- 2 players without reserve price
+bidding2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
 
    inputs    :      ;
    feedback  :      ;
@@ -189,7 +179,7 @@ bidding2 kPrice kSlots reservePrice valueSpace1 valueSpace2 actionSpace1 actionS
 
    inputs    :  [("Alice",aliceDec),("Bob",bobDec)]  ;
    feedback  :      ;
-   operation :   transformPayments kPrice kSlots reservePrice ;
+   operation :   transformPayments winningPrice reservePrice ;
    outputs   :  payments ;
    returns   :      ;
    :-----------------:
@@ -197,102 +187,4 @@ bidding2 kPrice kSlots reservePrice valueSpace1 valueSpace2 actionSpace1 actionS
    outputs   :      ;
    returns   :      ;
    |]
-
-
- -- Instantiates a simplified version with two players and expose winning bid
-bidding2ExposeWinningBid name1 name2 kPrice kSlots reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame|
-
-   inputs    :      ;
-   feedback  :      ;
-
-   :-----------------:
-   inputs    :      ;
-   feedback  :      ;
-   operation : natureDrawsTypeStage name1 valueSpace1 ;
-   outputs   :  aliceValue ;
-   returns   :      ;
-
-   inputs    :      ;
-   feedback  :      ;
-   operation : natureDrawsTypeStage name2 valueSpace2 ;
-   outputs   :  bobValue ;
-   returns   :      ;
-
-   inputs    :  aliceValue    ;
-   feedback  :      ;
-   operation :  biddingStage name1 actionSpace1 ;
-   outputs   :  aliceDec ;
-   returns   :  payments  ;
-
-   inputs    :  bobValue    ;
-   feedback  :      ;
-   operation :  biddingStage name2 actionSpace2 ;
-   outputs   :  bobDec ;
-   returns   :  payments  ;
-
-   inputs    :  [(name1,aliceDec),(name2,bobDec)]  ;
-   feedback  :      ;
-   operation :   transformPayments kPrice kSlots reservePrice ;
-   outputs   :  payments ;
-   returns   :      ;
-
-   inputs    :  payments  ;
-   feedback  :      ;
-   operation : forwardFunction $ extractWinningBid ;
-   outputs   : (winner,price) ;
-   returns   :      ;
-
-   :-----------------:
-
-   outputs   : (winner,price)  ;
-   returns   :      ;
-   |]
-
- 
-
-  
--- B Analysis
--------------
-
----------------
--- 0 Strategies
-
--- Truthful bidding
-stratBidderTruth :: Kleisli Stochastic (String, Values) Values
-stratBidderTruth  = Kleisli (\(_,x) -> playDeterministically x)
-
--- Constant bidding
-constBidding :: Values -> Kleisli Stochastic (String,Values) Values
-constBidding x = Kleisli (\(_,_) -> playDeterministically x)
-
--- Complete strategy for truthful bidding for 2 players
-truthfulStrat ::
-  List
-    '[Kleisli Stochastic (String, Values) Values,
-      Kleisli Stochastic (String, Values) Values]
-truthfulStrat =
-  stratBidderTruth
-  ::- stratBidderTruth
-  ::- Nil
-
--- Complete strategy for const bidding for 2 players
-constBiddingStrat x y =
-  constBidding x
-  ::- constBidding y
-  ::- Nil
-
----------------
--- 1 Equilibria
--- 1.0 Eq. game with 3 players
-equilibriumGame kPrice kSlots reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2 strat = evaluate (bidding2 kPrice kSlots reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2) strat void
-
-
-------------------------
--- 2 Interactive session
-
--- One object being auctioned off Once we exclude slots via lottery, and just auction off one slot, truthful bidding becomes an equilibrium
--- generateIsEq $ equilibriumGame 2 1 reservePriceParameter values values values values truthfulStrat
-
--- Not an equilibrium
--- generateIsEq $ equilibriumGame 2 1 reservePriceParameter values values values values (constBiddingStrat 30 30)
 
