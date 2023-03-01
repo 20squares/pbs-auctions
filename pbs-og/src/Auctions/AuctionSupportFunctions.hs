@@ -6,7 +6,6 @@ import OpenGames.Engine.Engine (Agent,Stochastic,uniformDist)
 
 import Data.List (maximumBy, sortBy, permutations)
 import Data.Ord (comparing)
-import GHC.Base (bindIO)
 
 {--
 Contains basic functionality needed for different auction formats
@@ -73,20 +72,6 @@ paymentReservePrice resPrice kmax  ((name,bid,winner):ls)
           then (name,kmax, winner) : payment resPrice kmax ls
           else (name,0, winner) : payment resPrice kmax ls
 
--- Select the payment for a player given the list of payments
-selectPayoffs :: Agent -> [AuctionOutcome] -> (BidValue,BlockWon)
-selectPayoffs name [] = (0,False)
-selectPayoffs name ((n,p,w):ls) = if name == n then (p,w) else selectPayoffs name ls
-
--- Determines the payoff for each player
-setPayoff :: (Agent, PrivateValue) -> [AuctionOutcome] -> Payoff
-setPayoff (name,value) payments =
-  if won == True
-     then value - pay
-     else - pay
-  where
-    (pay,won) =  selectPayoffs name payments
-
 -- Determine the payments given k-highest price (1,2..) 
 auctionPaymentResPrice :: (ReservePrice -> WinningBidValue -> [(Agent,BidValue,Bool)] -> [AuctionOutcome])
                  -- ^ Payment function
@@ -105,3 +90,34 @@ auctionPaymentAllPay :: [Bid] -> [AuctionOutcome]
 auctionPaymentAllPay ls =
   let kmax = kMaxBid 1 ls -- ^ Determine the winning bid
       in  auctionWinner kmax ls 
+
+-----------------
+-- Select payoffs
+-----------------
+
+-- Select the payment for a player given the list of payments
+selectPayoffs :: Agent -> [AuctionOutcome] -> (BidValue,BlockWon)
+selectPayoffs name [] = (0,False)
+selectPayoffs name ((n,p,w):ls) = if name == n then (p,w) else selectPayoffs name ls
+
+-- Determines the payoff for each player
+setPayoff :: (Agent, PrivateValue) -> [AuctionOutcome] -> Payoff
+setPayoff (name,value) payments =
+  if won == True
+     then value - pay
+     else - pay
+  where
+    (pay,won) =  selectPayoffs name payments
+
+----------------------------------------------------
+-- Additional functionality for hierarchical auctions
+----------------------------------------------------
+
+-- Extract winning agent and overall bids available for the next stage
+-- FIXME clarify whether values are observable from intermediate auctions and change type accordingly
+-- NOTE: this allows for non winning players having to make payments
+bidsAvailableToAuctioneer :: Agent -> [AuctionOutcome] -> (Agent,PrivateValue)
+bidsAvailableToAuctioneer auctioneer ls =  
+  let winner = head [a | (a,_,won) <- ls, won == True]
+      value  = sum [v | (_,v,_) <- ls]
+      in (auctioneer ++ "winner" ++ winner, value)

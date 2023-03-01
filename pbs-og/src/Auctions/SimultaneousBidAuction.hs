@@ -10,153 +10,87 @@ module Auctions.SimultaneousBidAuction
   where
 
 
+import Auctions.AuctionSupportFunctions
+import Auctions.Components
+
 import OpenGames.Engine.Engine
 import OpenGames.Preprocessor
-import Auctions.AuctionSupportFunctions
 
 ----------
 -- A Model
 ----------
 
----------------
--- 0 Parameters
-
--- tbd
-
----------------
--- 1 Components
-
--- Draws a value and creates a pair of _value_ _name_
-natureDrawsTypeStage name valueSpace = [opengame|
-
-    inputs    :   ;
-    feedback  :   ;
-
-    :-----:
-    inputs    :   ;
-    feedback  :   ;
-    operation : nature (uniformDist valueSpace) ;
-    outputs   : value ;
-    returns   :  ;
-    :-----:
-
-    outputs   :  (name,value) ;
-    returns   :    ;
-  |]
-
--- Individual bidding stage
-biddingStage name actionSpace = [opengame|
-
-    inputs    :  nameValuePair  ;
-    feedback  :   ;
-
-    :---------------------------:
-    inputs    :  nameValuePair  ;
-    feedback  :   ;
-    operation :  dependentDecision name (const actionSpace) ;
-    outputs   :  bid ;
-    returns   :  setPayoff nameValuePair payments  ;
-    :---------------------------:
-
-    outputs   :  bid ;
-    returns   :  payments  ;
-  |]
-
-
--- Transforms the bids and the relevant reservePrice into the payments by players
-transformPaymentsReservePrice winningPrice  = [opengame|
-
-   inputs    : (bids,reservePrice) ;
-   feedback  :      ;
-
-   :-----------------:
-   inputs    : (bids,reservePrice) ;
-   feedback  :      ;
-   operation : forwardFunction (auctionPaymentResPrice paymentReservePrice winningPrice) ;
-   outputs   : payments ;
-   returns   :      ;
-   :-----------------:
-
-   outputs   : payments ;
-   returns   :      ;
-  |]
-
--- Transforms the bids into a random reshuffling
-transformPayments winningPrice reservePrice = [opengame|
-
-   inputs    : bids ;
-   feedback  :      ;
-
-   :-----------------:
-   inputs    : (bids, reservePrice) ;
-   feedback  :      ;
-   operation : forwardFunction (auctionPaymentResPrice paymentReservePrice winningPrice) ;
-   outputs   : payments ;
-   returns   :      ;
-   :-----------------:
-
-   outputs   : payments ;
-   returns   :      ;
-  |]
-
--- Transforms the bids into a random reshuffling
-transformAllPayPayments  = [opengame|
-
-   inputs    : bids ;
-   feedback  :      ;
-
-   :-----------------:
-   inputs    : bids ;
-   feedback  :      ;
-   operation : forwardFunction auctionPaymentAllPay ;
-   outputs   : payments ;
-   returns   :      ;
-   :-----------------:
-
-   outputs   : payments ;
-   returns   :      ;
-  |]
-
-
-  
+ 
 -----------------------
 -- 2 Assembled auctions
 
--- 2 players with reserve price
+-- 2.1: 2 players with exogenous reserve price
 -- NOTE this format allows for first price, second price w/o reserve price
-bidding2ReservePrice winningPrice valueSpace1 valueSpace2 actionSpace1 actionSpace2 = [opengame| 
+bidding2ReservePriceExogenous name1 name2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
 
-   inputs    : reservePrice    ;
+   inputs    :      ;
    feedback  :      ;
 
    :-----------------:
    inputs    :      ;
    feedback  :      ;
-   operation : natureDrawsTypeStage "Relayn" valueSpace1 ;
-   outputs   :  aliceValue ;
+   operation : natureDrawsTypeStage name1 valueSpace1 ;
+   outputs   :  name1Value ;
    returns   :      ;
 
    inputs    :      ;
    feedback  :      ;
-   operation : natureDrawsTypeStage "Builderm" valueSpace2;
-   outputs   :  bobValue ;
+   operation : natureDrawsTypeStage name2 valueSpace2 ;
+   outputs   :  name2Value ;
    returns   :      ;
 
-   inputs    :  aliceValue    ;
+   inputs    :  name1Value    ;
    feedback  :      ;
-   operation :  biddingStage "Relayn" actionSpace1 ;
-   outputs   :  aliceDec ;
+   operation :  biddingStage name1 actionSpace1 ;
+   outputs   :  name1Dec ;
    returns   :  payments  ;
 
-   inputs    :  bobValue    ;
+   inputs    :  name2Value    ;
    feedback  :      ;
-   operation :  biddingStage "Builderm" actionSpace2 ;
-   outputs   :  bobDec ;
+   operation :  biddingStage name2 actionSpace2 ;
+   outputs   :  name2Dec ;
    returns   :  payments  ;
 
-   inputs    :  ([("Relayn",aliceDec),("Builderm",bobDec)],reservePrice)  ;
+   inputs    :  [(name1,name1Dec),(name2,name2Dec)]  ;
    feedback  :      ;
-   operation :  transformPaymentsReservePrice winningPrice  ;
+   operation :   transformPayments winningPrice reservePrice ;
+   outputs   :  payments ;
+   returns   :      ;
+   :-----------------:
+
+   outputs   :   payments   ;
+   returns   :      ;
+   |]
+
+-- 2.1: 2 players with exogenous reserve price
+-- NOTE this format allows for first price, second price w/o reserve price
+bidding2ReservePriceExogenousExternalValues name1 name2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+
+   inputs    :    name1Value, name2Value  ;
+   feedback  :      ;
+
+   :-----------------:
+
+   inputs    :  name1Value    ;
+   feedback  :      ;
+   operation :  biddingStage name1 actionSpace1 ;
+   outputs   :  name1Dec ;
+   returns   :  payments  ;
+
+   inputs    :  name2Value    ;
+   feedback  :      ;
+   operation :  biddingStage name2 actionSpace2 ;
+   outputs   :  name2Dec ;
+   returns   :  payments  ;
+
+   inputs    :  [(name1,name1Dec),(name2,name2Dec)]  ;
+   feedback  :      ;
+   operation :   transformPayments winningPrice reservePrice ;
    outputs   :  payments ;
    returns   :      ;
    :-----------------:
@@ -166,52 +100,9 @@ bidding2ReservePrice winningPrice valueSpace1 valueSpace2 actionSpace1 actionSpa
    |]
 
 
-
--- 2 players with exogenous reserve price
--- NOTE this format allows for first price, second price w/o reserve price
-bidding2ReservePriceExogenous winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
-
-   inputs    :      ;
-   feedback  :      ;
-
-   :-----------------:
-   inputs    :      ;
-   feedback  :      ;
-   operation : natureDrawsTypeStage "Relayn" valueSpace1 ;
-   outputs   :  aliceValue ;
-   returns   :      ;
-
-   inputs    :      ;
-   feedback  :      ;
-   operation : natureDrawsTypeStage "Builderm" valueSpace2 ;
-   outputs   :  bobValue ;
-   returns   :      ;
-
-   inputs    :  aliceValue    ;
-   feedback  :      ;
-   operation :  biddingStage "Relayn" actionSpace1 ;
-   outputs   :  aliceDec ;
-   returns   :  payments  ;
-
-   inputs    :  bobValue    ;
-   feedback  :      ;
-   operation :  biddingStage "Builderm" actionSpace2 ;
-   outputs   :  bobDec ;
-   returns   :  payments  ;
-
-   inputs    :  [("Relayn",aliceDec),("Builderm",bobDec)]  ;
-   feedback  :      ;
-   operation :   transformPayments winningPrice reservePrice ;
-   outputs   :  payments ;
-   returns   :      ;
-   :-----------------:
-
-   outputs   :      ;
-   returns   :      ;
-   |]
-
--- 3 allpay auction with 2 players
-bidding2AllPay  valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+  
+-- 2.2: 3 allpay auction with 2 players
+bidding2AllPay  name1 name2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
 
    inputs    :      ;
    feedback  :      ;
@@ -219,36 +110,36 @@ bidding2AllPay  valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame|
    :-----------------:
    inputs    :      ;
    feedback  :      ;
-   operation : natureDrawsTypeStage "Relayn" valueSpace1 ;
-   outputs   :  aliceValue ;
+   operation : natureDrawsTypeStage name1 valueSpace1 ;
+   outputs   :  name1Value ;
    returns   :      ;
 
    inputs    :      ;
    feedback  :      ;
-   operation : natureDrawsTypeStage "Builderm" valueSpace2 ;
-   outputs   :  bobValue ;
+   operation : natureDrawsTypeStage name2 valueSpace2 ;
+   outputs   :  name2Value ;
    returns   :      ;
 
-   inputs    :  aliceValue    ;
+   inputs    :  name1Value    ;
    feedback  :      ;
-   operation :  biddingStage "Relayn" actionSpace1 ;
-   outputs   :  aliceDec ;
+   operation :  biddingStage name1 actionSpace1 ;
+   outputs   :  name1Dec ;
    returns   :  payments  ;
 
-   inputs    :  bobValue    ;
+   inputs    :  name2Value    ;
    feedback  :      ;
-   operation :  biddingStage "Builderm" actionSpace2 ;
-   outputs   :  bobDec ;
+   operation :  biddingStage name2 actionSpace2 ;
+   outputs   :  name2Dec ;
    returns   :  payments  ;
 
-   inputs    :  [("Relayn",aliceDec),("Builderm",bobDec)]  ;
+   inputs    :  [(name1,name1Dec),(name2,name2Dec)]  ;
    feedback  :      ;
    operation :  transformAllPayPayments ;
    outputs   :  payments ;
    returns   :      ;
    :-----------------:
 
-   outputs   :      ;
+   outputs   :   payments   ;
    returns   :      ;
    |]
 
