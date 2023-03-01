@@ -27,7 +27,8 @@ library
   exposed-modules:
       Auctions.AuctionSupportFunctions
       Auctions.Components
-      Auctions.InterfacePBS
+      Auctions.CurrentAuction
+      Auctions.InterfaceBuilders
       Auctions.NestedAuctions
       Auctions.SimultaneousBidAuction
       Auctions.Types

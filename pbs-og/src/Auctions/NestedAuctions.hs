@@ -20,13 +20,12 @@ import OpenGames.Preprocessor
 
 {-
 
-Describes several nested auctions
-
+Describes several nested first price auctions.
+This is WIP. Needs to be fleshed out and checked wrt payoffs etc.
 -}
 
-----------
--- A Model
----------- 
+-----------------------
+-- Nested Auction model
 nestedFirstPriceAuctions auctioneer1 auctioneer2 user1 user2 user3 user4 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
 
    inputs    :      ;
