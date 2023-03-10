@@ -21,9 +21,9 @@ import OpenGames.Preprocessor
 Contains the relevant simultaneous bid auctions needed
 -}
 
-------------------
--- 1 Bidding stage
-------------------
+-------------------
+-- 1 Bidding module
+-------------------
 
 -- | Describes the bidder stage; the number of players, individual evaluations etc. can be changed here w/o affecting the assembled auctions further below
 bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
@@ -68,86 +68,51 @@ bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [openg
 
 -- 2.1: 2 players with exogenous reserve price
 -- NOTE this format allows for first price, second price w/o reserve price
-bidding2ReservePriceExogenous name1 name2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+reservePriceExogenous name1 name2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
 
    inputs    :      ;
    feedback  :      ;
 
    :-----------------:
-   inputs    :      ;
-   feedback  :      ;
-   operation : natureDrawsTypeStage name1 valueSpace1 ;
-   outputs   :  name1Value ;
-   returns   :      ;
+   inputs    :  ;
+   feedback  :  ;
+   operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   outputs   : bids ;
+   returns   : payments ;
 
-   inputs    :      ;
-   feedback  :      ;
-   operation : natureDrawsTypeStage name2 valueSpace2 ;
-   outputs   :  name2Value ;
-   returns   :      ;
-
-   inputs    :  name1Value    ;
-   feedback  :      ;
-   operation :  biddingStage name1 actionSpace1 ;
-   outputs   :  name1Dec ;
-   returns   :  payments  ;
-
-   inputs    :  name2Value    ;
-   feedback  :      ;
-   operation :  biddingStage name2 actionSpace2 ;
-   outputs   :  name2Dec ;
-   returns   :  payments  ;
-
-   inputs    :  [(name1,name1Dec),(name2,name2Dec)]  ;
-   feedback  :      ;
-   operation :   transformPayments winningPrice reservePrice ;
-   outputs   :  payments ;
-   returns   :      ;
+ 
+   inputs    : bids;
+   feedback  : ;
+   operation : transformPayments winningPrice reservePrice ;
+   outputs   : payments ;
+   returns   : ;
    :-----------------:
 
-   outputs   :   payments   ;
-   returns   :      ;
+   outputs   : payments   ;
+   returns   :     ;
    |]
 
 -- 2.1:  allpay auction with 2 players
-bidding2AllPay  name1 name2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+biddingAllPay  name1 name2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
 
-   inputs    :      ;
-   feedback  :      ;
+   inputs    : ;
+   feedback  : ;
 
    :-----------------:
-   inputs    :      ;
-   feedback  :      ;
-   operation : natureDrawsTypeStage name1 valueSpace1 ;
-   outputs   :  name1Value ;
-   returns   :      ;
+   inputs    : ;
+   feedback  : ;
+   operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   outputs   : bids ;
+   returns   : payments ;
 
-   inputs    :      ;
-   feedback  :      ;
-   operation : natureDrawsTypeStage name2 valueSpace2 ;
-   outputs   :  name2Value ;
-   returns   :      ;
-
-   inputs    :  name1Value    ;
-   feedback  :      ;
-   operation :  biddingStage name1 actionSpace1 ;
-   outputs   :  name1Dec ;
-   returns   :  payments  ;
-
-   inputs    :  name2Value    ;
-   feedback  :      ;
-   operation :  biddingStage name2 actionSpace2 ;
-   outputs   :  name2Dec ;
-   returns   :  payments  ;
-
-   inputs    :  [(name1,name1Dec),(name2,name2Dec)]  ;
-   feedback  :      ;
-   operation :  transformAllPayPayments ;
-   outputs   :  payments ;
-   returns   :      ;
+   inputs    : bids;
+   feedback  : ;
+   operation : transformAllPayPayments ;
+   outputs   : payments ;
+   returns   : ;
    :-----------------:
 
-   outputs   :   payments   ;
-   returns   :      ;
+   outputs   : payments ;
+   returns   : ;
    |]
 
