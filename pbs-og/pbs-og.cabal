@@ -28,7 +28,6 @@ library
       Auctions.AuctionSupportFunctions
       Auctions.Components
       Auctions.CurrentAuction
-      Auctions.InterfaceBuilders
       Auctions.NestedAuctions
       Auctions.SimultaneousBidAuction
       Auctions.Types

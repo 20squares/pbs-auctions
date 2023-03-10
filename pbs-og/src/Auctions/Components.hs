@@ -106,7 +106,7 @@ transformAllPayPayments  = [opengame|
    returns   :      ;
   |]
 
-
+-- Given results of a previous auction, determine new possible input values for auctions
 transformAuctionResultNewParticipant name = [opengame|
 
    inputs    : resultsAuction ;
@@ -121,6 +121,44 @@ transformAuctionResultNewParticipant name = [opengame|
    :-----------------:
 
    outputs   : (newName,newValue) ;
+   returns   :      ;
+
+  |]
+
+-- Given the result of an auction, parse out the result
+transformAuctionOutcome name = [opengame|
+
+   inputs    : resultsAuction ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    : resultsAuction ;
+   feedback  :      ;
+   operation : forwardFunction $ payoffsSplitAuctioneer name ;
+   outputs   : outcome ;
+   returns   :      ;
+   :-----------------:
+
+   outputs   : outcome ;
+   returns   :      ;
+
+  |]
+
+-- Given the result of an auction, parse out the result
+determinePayoffs name = [opengame|
+
+   inputs    : resultAuctioneer, resultsAuction ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    : resultAuctioneer, resultsAuction ;
+   feedback  :      ;
+   operation : forwardFunction $ uncurry $ accountForPayoffs name ;
+   outputs   : payoffAuctioneer,payoffBiders ;
+   returns   :      ;
+   :-----------------:
+
+   outputs   : payoffAuctioneer,payoffBiders ;
    returns   :      ;
 
   |]

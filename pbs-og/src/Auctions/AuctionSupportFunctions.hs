@@ -121,3 +121,18 @@ bidsAvailableToAuctioneer auctioneer ls =
   let winner = head [a | (a,_,won) <- ls, won == True]
       value  = sum [v | (_,v,_) <- ls]
       in (auctioneer ++ "winner" ++ winner, value)
+
+-- FIXME improve and make it more robust
+payoffsSplitAuctioneer :: Agent -> [AuctionOutcome] -> (Payoff,Bool)
+payoffsSplitAuctioneer agent lsOutcomes =
+  let (agent',bidValue,blockWon) = head $ filter (\(agent',bidValue,blockWon) -> agent'== agent ) lsOutcomes
+      in (bidValue,blockWon)
+
+-- Account for payoffs players
+accountForPayoffs :: Agent -> (Payoff,Bool) -> [AuctionOutcome] -> ((Agent,Payoff),[AuctionOutcome])
+accountForPayoffs agent (bid,won) lsOutcomes
+  | won == False = ((agent,0),[(a,0,False)| (a,_,_) <- lsOutcomes])
+  | otherwise    =
+    let profit = sum $ fmap (\(_,v,_) -> v) lsOutcomes
+        in ((agent,profit - bid), lsOutcomes)
+      

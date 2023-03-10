@@ -137,7 +137,7 @@ validatorsDecision   = [opengame|
    inputs    :  winningBid    ;
    feedback  :  ;
    operation :  forwardFunction extractProposerPayment  ;
-   outputs   :  returnProposer ; 
+   outputs   :  returnProposer ;
    returns   :    ;
 
    :-----------------:
