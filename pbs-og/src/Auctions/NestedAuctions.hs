@@ -12,7 +12,7 @@ module Auctions.NestedAuctions
 
 import Auctions.AuctionSupportFunctions
 import Auctions.Components
-import Auctions.SimultaneousBidAuction
+import Auctions.Model
 
 import OpenGames.Engine.Engine
 import OpenGames.Preprocessor

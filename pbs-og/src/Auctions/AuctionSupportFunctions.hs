@@ -5,6 +5,7 @@ import Auctions.Types
 import OpenGames.Engine.Engine (Agent,Stochastic,uniformDist)
 
 import Data.List (maximumBy, sortBy, permutations)
+import qualified Data.Map.Strict as M
 import Data.Ord (comparing)
 
 {--
@@ -108,6 +109,33 @@ setPayoff (name,value) payments =
      else - pay
   where
     (pay,won) =  selectPayoffs name payments
+
+------------------------------------------
+-- Additional functionality for status quo
+------------------------------------------
+-- Aggregate a pair of bids
+-- TODO extend to more general bids
+aggregateBids :: (Bid,Bid) -> Relay
+aggregateBids (b1,b2) =  [b1,b2]
+
+-- Find max bid in relay
+findMaxBidRelay :: Relay -> Bid
+findMaxBidRelay ls = maximumBy (comparing snd) ls
+
+-- Extract payment for proposer
+extractProposerPayment :: Bid -> BidValue
+extractProposerPayment (name,value) = value
+
+
+-- Compute payoffs for sending them back
+computePayoffFunction :: Bid -> [(Agent,PrivateValue)] -> [AuctionOutcome]
+computePayoffFunction (agent,bid) ls =
+  let bidMap = M.fromList ls
+      updateFunction (k,v) =
+        if k == agent
+           then (k,v - bid,True)
+           else (k,0,False)
+     in fmap updateFunction ls
 
 ----------------------------------------------------
 -- Additional functionality for hierarchical auctions

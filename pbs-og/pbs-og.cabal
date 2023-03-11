@@ -25,11 +25,11 @@ source-repository head
 
 library
   exposed-modules:
+      Auctions.Analytics
       Auctions.AuctionSupportFunctions
       Auctions.Components
-      Auctions.CurrentAuction
+      Auctions.Model
       Auctions.NestedAuctions
-      Auctions.SimultaneousBidAuction
       Auctions.Types
   other-modules:
       Paths_pbs_og
@@ -38,6 +38,7 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , containers
     , open-games-hs
   default-language: Haskell2010
 
@@ -50,6 +51,7 @@ executable pbs-og-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers
     , open-games-hs
     , pbs-og
   default-language: Haskell2010
@@ -64,6 +66,7 @@ test-suite pbs-og-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers
     , open-games-hs
     , pbs-og
   default-language: Haskell2010
