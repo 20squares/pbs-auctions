@@ -25,15 +25,20 @@ type WinningPrice = Int           -- Establishes if the winning price is 1st pri
 
 type Payoff = Double
 
-data AuctionParameter = AuctionParameter
-  { reservePrice :: BidValue
-  , winningPrice :: WinningPrice
-  } deriving (Show)
-
 data Parameters = Parameters
-  { valueSpace1 :: [PrivateValue]
+  { nameProposer :: Agent
+  , name1 :: Agent
+  , name2 :: Agent
+  , name3 :: Agent
+  , name4 :: Agent
+  , valueSpace1 :: [PrivateValue]
   , valueSpace2 :: [PrivateValue]
+  , valueSpace3 :: [PrivateValue]
+  , valueSpace4 :: [PrivateValue]
   , actionSpace1 :: [BidValue]
   , actionSpace2 :: [BidValue]
-  , auctionParameter :: AuctionParameter 
+  , actionSpace3 :: [BidValue]
+  , actionSpace4 :: [BidValue]
+  , reservePrice :: BidValue
+  , winningPrice :: WinningPrice
   } deriving (Show)

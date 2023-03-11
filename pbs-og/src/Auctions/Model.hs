@@ -61,44 +61,6 @@ bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [openg
    returns   :   payments   ;
    |]
 
--- | Describes the bidder stage; equivalent with the above but payoffs get determined in the future
-biddersFuturePayoffs name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
-   inputs    :      ;
-   feedback  :      ;
-
-   :-----------------:
-   inputs    :      ;
-   feedback  :      ;
-   operation : natureDrawsTypeStage name1 valueSpace1 ;
-   outputs   :  name1Value ;
-   returns   :      ;
-
-   inputs    :      ;
-   feedback  :      ;
-   operation : natureDrawsTypeStage name2 valueSpace2 ;
-   outputs   :  name2Value ;
-   returns   :      ;
-
-   inputs    :  name1Value    ;
-   feedback  :      ;
-   operation :  biddingStage name1 actionSpace1 ;
-   outputs   :  name1Dec ;
-   returns   :  0  ;
-   // Payoffs resolved later
-
-   inputs    :  name2Value    ;
-   feedback  :      ;
-   operation :  biddingStage name2 actionSpace2 ;
-   outputs   :  name2Dec ;
-   returns   :  0  ;
-   // Payoffs resolved later
-   
-   :-----------------:
-
-   outputs   :   ([(name1,name1Dec),(name2,name2Dec)], [(name1,name1Value),(name2,name2Value)]) ;
-   returns   :      ;
-   |]
-
 
 -----------------------
 -- 2 Current Status quo
@@ -117,14 +79,14 @@ buildersToRelay name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valu
    inputs    :  ;
    feedback  :  ;
    operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
-   outputs   : bids1,values1 ;
-   returns   :  ;
+   outputs   : bids1 ;
+   returns   : payments ;
 
    inputs    :  ;
    feedback  :  ;
-   operation : bidders namename3 name4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
-   outputs   : bids2,values2 ;
-   returns   :  ;
+   operation : bidders name3 name4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   outputs   : bids2 ;
+   returns   : payments ;
 
    inputs    :  bids1;
    feedback  :      ;
@@ -146,18 +108,10 @@ buildersToRelay name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valu
    // Aggregate the two winning bids from a relay into list of available blocks
    // for the propser to choose from
 
-   inputs    :  values1,values2 ;
-   feedback  :      ;
-   operation :  forwardFunction aggregateBids ;
-   outputs   :  allvalues ;
-   returns   :   ;
-   // Aggregate the two winning bids from a relay into list of available blocks
-   // for the propser to choose from
-
    :-----------------:
 
-   outputs   : bidsFromRelay, allvalues ;
-   returns   : ;
+   outputs   : bidsFromRelay ;
+   returns   : payments;
 |]
 
 validatorsDecision nameProposer  = [opengame| 
@@ -169,7 +123,7 @@ validatorsDecision nameProposer  = [opengame|
 
    inputs    :  bids ;
    feedback  :  ;
-   operation :  dependentDecision nameProposer id ;
+   operation :  dependentDecision nameProposer id;
    outputs   :  winningBid ;
    returns   :  returnProposer ;
 
@@ -185,9 +139,10 @@ validatorsDecision nameProposer  = [opengame|
    returns   :      ;
    |]
 
+
 ---------------------
 -- Assemble full game
-currentAuctionGame  valueSpace1 valueSpace2 actionSpace1 actionSpace2 = [opengame| 
+currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 = [opengame| 
 
    inputs    : ;
    feedback  : ;
@@ -196,20 +151,20 @@ currentAuctionGame  valueSpace1 valueSpace2 actionSpace1 actionSpace2 = [opengam
 
    inputs    :  ;
    feedback  :  ;
-   operation :  buildersToRelay valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
-   outputs   :  bids,values ;
-   returns   :  ;
+   operation :  buildersToRelay name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 ;
+   outputs   :  bids ;
+   returns   :  paymentsBidders;
 
    inputs    :  bids ;
    feedback  :  ;
-   operation :  validatorsDecision  ;
+   operation :  validatorsDecision nameProposer ;
    outputs   :  winningBid ; 
    returns   :   ;
 
-   inputs    :  winningBid,values ;
+   inputs    :  winningBid,bids ;
    feedback  :  ;
-   operation :  computePayoffs ;
-   outputs   :  payoffsBidders ;
+   operation :  computeOutcomes ;
+   outputs   :  paymentsBidders ;
    returns   :   ;
 
 
@@ -220,7 +175,6 @@ currentAuctionGame  valueSpace1 valueSpace2 actionSpace1 actionSpace2 = [opengam
    |]
 
 
-  
 -----------------------
 -- 3 Assembled auctions
 -----------------------

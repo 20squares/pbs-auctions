@@ -116,7 +116,7 @@ setPayoff (name,value) payments =
 -- Aggregate a pair of bids
 -- TODO extend to more general bids
 aggregateBids :: (Bid,Bid) -> Relay
-aggregateBids (b1,b2) =  [b1,b2]
+aggregateBids (b1,b2) = [b1,b2]
 
 -- Find max bid in relay
 findMaxBidRelay :: Relay -> Bid
@@ -128,12 +128,12 @@ extractProposerPayment (name,value) = value
 
 
 -- Compute payoffs for sending them back
-computePayoffFunction :: Bid -> [(Agent,PrivateValue)] -> [AuctionOutcome]
-computePayoffFunction (agent,bid) ls =
+computeOutcomeFunction :: Bid -> [Bid] -> [AuctionOutcome]
+computeOutcomeFunction (agent,bid) ls =
   let bidMap = M.fromList ls
       updateFunction (k,v) =
         if k == agent
-           then (k,v - bid,True)
+           then (k,bid,True)
            else (k,0,False)
      in fmap updateFunction ls
 

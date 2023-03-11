@@ -12,6 +12,7 @@ import Auctions.AuctionSupportFunctions
 
 import OpenGames.Engine.Engine
 import OpenGames.Preprocessor
+
 ---------------
 -- 1 Components
 
@@ -162,3 +163,23 @@ determinePayoffs name = [opengame|
    returns   :      ;
 
   |]
+
+ -- Given the bids, and the proposer's choice, determine outcome 
+computeOutcomes  = [opengame|
+
+   inputs    : winningBid, bids ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    : winningBid, bids ;
+   feedback  :      ;
+   operation : forwardFunction $ uncurry $ computeOutcomeFunction ;
+   outputs   : paymentsBidders ;
+   returns   :      ;
+   :-----------------:
+
+   outputs   : paymentsBidders ;
+   returns   :      ;
+
+  |]
+
