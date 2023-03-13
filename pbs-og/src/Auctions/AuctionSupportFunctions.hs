@@ -37,20 +37,19 @@ extractWinningBid :: [Bid] -> Bid
 extractWinningBid = maximumBy (comparing snd) 
 
 -- Mark the auctionWinners with reserve price
-auctionWinnerReservePrice :: BidValue -> BidValue -> [Bid] -> [(Agent, BidValue,Bool)]
-auctionWinnerReservePrice _            _    []            = []
+auctionWinnerReservePrice :: BidValue -> WinningBidValue -> [Bid] -> [(Agent, BidValue,Bool)]
+auctionWinnerReservePrice _            kmax []            = []
 auctionWinnerReservePrice reservePrice kmax ((name,b):bs) =
   if b < kmax || b < reservePrice
      then (name,b,False) : auctionWinner kmax bs
      else (name,b,True)  : auctionWinner kmax bs
 
 -- Mark the auctionWinners
-auctionWinner :: BidValue -> [Bid] -> [AuctionOutcome]
-auctionWinner _    []            = []
+auctionWinner :: WinningBidValue ->  [Bid] -> [AuctionOutcome]
+auctionWinner kmax []            = []
 auctionWinner kmax ((name,b):bs) =
   if b < kmax then (name,b,False) : auctionWinner kmax bs
               else (name,b,True)  : auctionWinner kmax bs
-
 
 
 ----------------
@@ -61,18 +60,18 @@ auctionWinner kmax ((name,b):bs) =
 paymentReservePrice :: ReservePrice -> WinningBidValue ->  [(Agent,BidValue,Bool)] -> [AuctionOutcome]
 paymentReservePrice _        _     []                     = []
 paymentReservePrice resPrice kmax  ((name,bid,winner):ls)
-  | winner && bid >= resPrice = (name,bid, winner) : payment resPrice kmax  ls
-  | winner && bid <  resPrice = (name,resPrice, winner) : payment resPrice kmax  ls
-  | otherwise                 =  (name,0, winner ) : payment resPrice kmax  ls
+  | winner && bid >= resPrice = (name,kmax, winner) : payment ls
+  | winner && bid <  resPrice = (name,resPrice, winner) : payment ls
+  | otherwise                 =  (name,0, winner ) : payment ls
   where
     -- k- price auction rule,  winners always pay k-highest price
-    payment :: ReservePrice -> WinningBidValue -> [(Agent,BidValue,Bool)] -> [AuctionOutcome]
-    payment _        _     []                     = []
-    payment resPrice kmax  ((name,bid,winner):ls) =
+    payment :: [(Agent,BidValue,Bool)] -> [AuctionOutcome]
+    payment []                     = []
+    payment ((name,bid,winner):ls) =
       if winner
-          then (name,kmax, winner) : payment resPrice kmax ls
-          else (name,0, winner) : payment resPrice kmax ls
-
+          then (name,kmax, winner) : payment ls
+          else (name,0, winner) : payment ls
+    
 -- Determine the payments given k-highest price (1,2..) 
 auctionPaymentResPrice :: (ReservePrice -> WinningBidValue -> [(Agent,BidValue,Bool)] -> [AuctionOutcome])
                  -- ^ Payment function
@@ -82,15 +81,15 @@ auctionPaymentResPrice :: (ReservePrice -> WinningBidValue -> [(Agent,BidValue,B
                  -- ^ List of bids with reserve price
                  -> [AuctionOutcome]
 auctionPaymentResPrice paymentFunction winningPrice (ls,reservePrice) =
-   paymentFunction reservePrice kMax (auctionWinnerReservePrice reservePrice kMax ls)
-   where kMax = kMaxBidReservePrice reservePrice winningPrice ls
+   paymentFunction reservePrice kmax (auctionWinnerReservePrice reservePrice kmax ls)
+   where kmax = kMaxBidReservePrice reservePrice winningPrice ls
 
 -- All pay auction rule, i.e. every player pays the bid
 -- NOTE that we include the information on winning 
 auctionPaymentAllPay :: [Bid] -> [AuctionOutcome]
-auctionPaymentAllPay ls =
-  let kmax = kMaxBid 1 ls -- ^ Determine the winning bid
-      in  auctionWinner kmax ls 
+auctionPaymentAllPay bids =
+  let kmax = kMaxBid 1 bids -- ^ Determine the winning bid
+      in  auctionWinner kmax bids
 
 -----------------
 -- Select payoffs

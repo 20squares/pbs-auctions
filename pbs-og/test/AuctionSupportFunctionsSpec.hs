@@ -11,6 +11,7 @@ spec = do
   setPayoffsTest
   findMaxBidRelayTest
   computeOutcomeFunctionTest
+  auctionWinnerReservePriceTest
   auctionPaymentAllPayTest
   auctionPaymentResPriceTest
 
@@ -79,6 +80,18 @@ computeOutcomeFunctionTest = describe
        shouldBe
          (computeOutcomeFunction ("bidder1",20) testBids1)
          testOutcomes3
+
+auctionWinnerReservePriceTest = describe
+   "compute winning bids" $ do
+     it "the winning bid is extracted correctly" $ do
+       shouldBe
+         (extractWinningBid testBids1)
+         ("bidder1",20)
+     it "correct winning bids - 1" $ do
+       shouldBe
+         (auctionWinner 20 testBids1)
+         testOutcomes1
+
 
 auctionPaymentAllPayTest = describe
    "compute outcomes for all pay auction" $ do
