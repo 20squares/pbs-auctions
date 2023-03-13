@@ -97,6 +97,7 @@ auctionPaymentAllPay ls =
 -----------------
 
 -- Select the payment for a player given the list of payments
+-- TODO Fix possible non defined agent
 selectPayoffs :: Agent -> [AuctionOutcome] -> (BidValue,BlockWon)
 selectPayoffs name [] = (0,False)
 selectPayoffs name ((n,p,w):ls) = if name == n then (p,w) else selectPayoffs name ls
@@ -136,17 +137,17 @@ extractProposerPayment (name,value) = value
 
 
 -- Compute payoffs for sending them back
+-- This takes the winning bid and then transforms all bids into an auction outcome
 computeOutcomeFunction :: Bid -> [Bid] -> [AuctionOutcome]
 computeOutcomeFunction (agent,bid) ls =
-  let bidMap = M.fromList ls
-      updateFunction (k,v) =
+  let updateFunction (k,v) =
         if k == agent
            then (k,bid,True)
            else (k,0,False)
      in fmap updateFunction ls
 
 ----------------------------------------------------
--- Additional functionality for hierarchical auctions
+-- EXPERIMENTAL Additional functionality for hierarchical auctions
 ----------------------------------------------------
 
 -- Extract winning agent and overall bids available for the next stage

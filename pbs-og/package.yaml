@@ -60,3 +60,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - pbs-og
+    - hspec
