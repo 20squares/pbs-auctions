@@ -181,7 +181,7 @@ currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 
 
 -- 3.1: 2 players with exogenous reserve price
 -- NOTE this format allows for first price, second price w/o reserve price
-reservePriceExogenous name1 name2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+reservePriceExogenous name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 winningPrice reservePrice = [opengame| 
 
    inputs    :      ;
    feedback  :      ;
@@ -190,10 +190,21 @@ reservePriceExogenous name1 name2 winningPrice reservePrice valueSpace1 valueSpa
    inputs    :  ;
    feedback  :  ;
    operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
-   outputs   : bids ;
+   outputs   : bids1 ;
    returns   : payments ;
 
- 
+   inputs    :  ;
+   feedback  :  ;
+   operation : bidders name3 name4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   outputs   : bids2 ;
+   returns   : payments ;
+
+   inputs    : bids1, bids2 ;
+   feedback  :  ;
+   operation : forwardFunction aggregateBidsLS ;
+   outputs   : bids ;
+   returns   : ;
+
    inputs    : bids;
    feedback  : ;
    operation : transformPayments winningPrice reservePrice ;
@@ -206,17 +217,29 @@ reservePriceExogenous name1 name2 winningPrice reservePrice valueSpace1 valueSpa
    |]
 
 -- 3.1:  allpay auction with 2 players
-biddingAllPay  name1 name2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+biddingAllPay  name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4  = [opengame| 
 
    inputs    : ;
    feedback  : ;
 
    :-----------------:
-   inputs    : ;
-   feedback  : ;
+   inputs    :  ;
+   feedback  :  ;
    operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
-   outputs   : bids ;
+   outputs   : bids1 ;
    returns   : payments ;
+
+   inputs    :  ;
+   feedback  :  ;
+   operation : bidders name3 name4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   outputs   : bids2 ;
+   returns   : payments ;
+
+   inputs    : bids1, bids2 ;
+   feedback  :  ;
+   operation : forwardFunction aggregateBidsLS ;
+   outputs   : bids ;
+   returns   : ;
 
    inputs    : bids;
    feedback  : ;

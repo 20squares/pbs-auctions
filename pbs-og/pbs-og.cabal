@@ -30,6 +30,7 @@ library
       Auctions.Components
       Auctions.Model
       Auctions.NestedAuctions
+      Auctions.Parameterization
       Auctions.Types
   other-modules:
       Paths_pbs_og

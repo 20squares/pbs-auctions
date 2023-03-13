@@ -26,7 +26,7 @@ This is a sketch of several nested first price auctions. This is not complete an
 
 -- Auxiliary component
 -- NOTE this format allows for first price, second price w/o reserve price
-reservePriceExogenousExternalValues name1 name2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+reservePriceExogenousExternalValues name1 name2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  winningPrice reservePrice  = [opengame| 
 
    inputs    :    name1Value, name2Value  ;
    feedback  :      ;
@@ -56,6 +56,29 @@ reservePriceExogenousExternalValues name1 name2 winningPrice reservePrice valueS
    returns   :      ;
    |]
 
+reservePriceExogenous2Bidders name1 name2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  winningPrice reservePrice = [opengame| 
+
+   inputs    :      ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    :  ;
+   feedback  :  ;
+   operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   outputs   : bids ;
+   returns   : payments ;
+
+   inputs    : bids;
+   feedback  : ;
+   operation : transformPayments winningPrice reservePrice ;
+   outputs   : payments ;
+   returns   : ;
+   :-----------------:
+
+   outputs   : payments   ;
+   returns   :     ;
+   |]
+
 
 
 -----------------------
@@ -70,13 +93,13 @@ nestedFirstPriceAuctions auctioneer1 auctioneer2 user1 user2 user3 user4 winning
    :-----------------:
    inputs    :      ;
    feedback  :      ;
-   operation : reservePriceExogenous user1 user2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation : reservePriceExogenous2Bidders user1 user2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  winningPrice reservePrice ;
    outputs   : results1 ;
    returns   :      ;
 
    inputs    :      ;
    feedback  :      ;
-   operation : reservePriceExogenous user3 user4 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation : reservePriceExogenous2Bidders user3 user4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice ;
    outputs   : results2 ;
    returns   :      ;
 
@@ -94,7 +117,7 @@ nestedFirstPriceAuctions auctioneer1 auctioneer2 user1 user2 user3 user4 winning
 
    inputs    :  newValuePair1, newValuePair2  ;
    feedback  :      ;
-   operation :  reservePriceExogenousExternalValues auctioneer1 auctioneer2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation :  reservePriceExogenousExternalValues auctioneer1 auctioneer2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice ;
    outputs   :  results3 ;
    returns   :      ;
    :-----------------:
@@ -110,7 +133,7 @@ nestedFirstPriceAuctions auctioneer1 auctioneer2 user1 user2 user3 user4 winning
 -- NOTE initial willingness to participate are given exogenously
 -- TODO Do we want to use a branching game or do both auctions run in parallel anyways?
 -- FIXME the payoffs of the auction players need to be made contingent on the overall outcome
-nestedFirstPriceAuctionsReverse auctioneer1 auctioneer2 user1 user2 user3 user4 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2 newValuePair1 newValuePair2  = [opengame| 
+nestedFirstPriceAuctionsReverse auctioneer1 auctioneer2 user1 user2 user3 user4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 newValuePair1 newValuePair2 winningPrice reservePrice = [opengame| 
 
    inputs    :    name1Value, name2Value  ;
    feedback  :      ;
@@ -118,7 +141,7 @@ nestedFirstPriceAuctionsReverse auctioneer1 auctioneer2 user1 user2 user3 user4 
    :-----------------:
    inputs    :   name1Value, name2Value ;
    feedback  :      ;
-   operation :  reservePriceExogenousExternalValues auctioneer1 auctioneer2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation :  reservePriceExogenousExternalValues auctioneer1 auctioneer2 valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice;
    outputs   :  results3 ;
    returns   :      ;
 
@@ -136,13 +159,13 @@ nestedFirstPriceAuctionsReverse auctioneer1 auctioneer2 user1 user2 user3 user4 
 
    inputs    :      ;
    feedback  :      ;
-   operation : reservePriceExogenous user1 user2 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation : reservePriceExogenous2Bidders user1 user2 valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice ;
    outputs   : results1 ;
    returns   :      ;
 
    inputs    :      ;
    feedback  :      ;
-   operation : reservePriceExogenous user3 user4 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation : reservePriceExogenous2Bidders user3 user4 valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice ;
    outputs   : results2 ;
    returns   :      ;
 

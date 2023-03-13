@@ -110,11 +110,19 @@ setPayoff (name,value) payments =
   where
     (pay,won) =  selectPayoffs name payments
 
+
+--------------
+-- Scalability
+--------------
+
+-- Aggregate lists of bids
+aggregateBidsLS :: ([Bid],[Bid]) -> [Bid]
+aggregateBidsLS (b1,b2) = b1 ++ b2
+
 ------------------------------------------
 -- Additional functionality for status quo
 ------------------------------------------
 -- Aggregate a pair of bids
--- TODO extend to more general bids
 aggregateBids :: (Bid,Bid) -> Relay
 aggregateBids (b1,b2) = [b1,b2]
 

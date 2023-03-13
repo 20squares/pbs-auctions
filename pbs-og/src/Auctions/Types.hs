@@ -3,8 +3,6 @@ module Auctions.Types
 
 import OpenGames.Engine.Engine (Agent)
 
-
-
 type PrivateValue = Double        -- The private valuation that a player has
 
 type BidValue = Double            -- The public valuation that the player bids
