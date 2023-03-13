@@ -28,24 +28,9 @@
     - [Sanity checks](#sanity-checks)
 # Summary
 
-In this FRP we focused on modelling some of the thought experiments around prisoner's dilemma with credible commitments as detailed in [Xin's research](https://docs.google.com/presentation/d/1on6OpmjEuFQ5HQOx6b6JjWzUHZx5pBoWbxVJyKAFS_c/edit#slide=id.p). We then generalized these experiments to a more tangible case involving frontrunning and swaps in an *automatic market maker (AMM)*.
+In this FRP we focused on modelling some of the thought experiments around Proposer-Builder Separation (PBS). Essentially, we implemented a modular bidding game and experimented with different auction procedures.
 
 ## Analytics results
-
-We verified that everything that was supposed to be an equilibrium is indeed an equilibrium:
-
-- In [Vanilla prisoner's dilemma](#vanilla-prisoners-dilemma), the equilbrium is `(Defect, Defect)`;
-- In [Prisoner's dilemma with a commitment device](#prisoners-dilemma-with-a-commitment-device), the equilibrium is `(Cooperate, Cooperate)`;
-- In [Prisoner's dilemma with branching](#prisoners-dilemma-with-branching), the equilibrium is choosing to play the commitment device version, and then `(Cooperate, Cooperate)`;
-- In [Prisoner's dilemma with extortion](#prisoners-dilemma-with-extortion), the equilibrium is again `(Cooperate, Cooperate)`, but the payoffs are obviousl skewed against the extorted player. As we expected, the equilibrium breaks when the extorted value makes the extorted player's payoff lower than the one it would have been by playing `Defect`.
-- In [Prisoner's dilemma with a coordinator](#prisoners-dilemma-with-a-coordinator), we verified that the equilibrium for both players consists in trying to outbid each other to win the right to commit (frontrunning).
-
-Essentially, everything worked as expected, and we can say with certainty that the game-theoretic research we were tasked to model is formally sound.
-
-As for [The AMM game](#the-amm-game), 
-- We verified that with a greedy coordinator users have an incentive to pay fees to frontrun each other. We also found some optimal fees.
-- We verified that with a coordinator working to maximize global welfare trying to bribe the coordinator does not make sense, and that the coordinator will reorder the AMM transactions to reduce global slippage.
-- We verified that in the presence of players' private information, as in [The AMM with private information](#the-amm-game-with-private-information) game, the old equilibrium for the welfare-maximizing coordinator breaks down.
 
 
 # Installation
@@ -122,6 +107,32 @@ these errors hint at missing GCC libraries, which will have to be installed inde
 # Explaining the model
 
 Here, we give a more detailed explanation of what our model does.
+
+Our model is simple and comprises three different actors:
+
+- **Bidders**, which represent builders competing for blockspace. Each **Bidder** has a private valuation that is drawn from nature. This private valuation represents how much the **Bidder** thinks that the blockspace on auction 'is really worth'. The **Bidder** observes the private value and uses it to formulate a bid.
+- **Relayers**, that relay the bids to **Proposer**. A relayer observes bids from a subset of builders, and has to filter one **Bidder** from the subset, whose bid will be relayed to the **Proposer**. Each relayer is free to chose whatever procedure for the filtering. **Relayers** are not strategic actors in this model, meaning that the selection they perform is completely mechanicistic.
+- The **Proposer**, which observes the bids relayed by the **Relayers**, and awards the blockspace to a winning **Bidder**. Proposer is free to chose the auctioning procedure.
+
+In practice, our model implements a *nested auction*, since **Bidders** have to first compete to be selected by their **Relayer**, and then have to compete to be selected by **Proposer**. 
+
+**Bidders** want to maximize their payoff, which is calculated as:
+- A profit corresponding to the difference between the private valuation the **Bidder** has and how much the **Bidder** paid, in the case the **Bidder** wins the auction;
+- A loss corresponding to the amount paid in the case the **Bidder** loses the auction. Notice that there are auctions in which all **Bidders** pay, not just the winning one!
+
+Similarly, **Proposer** wants to maximize their payoff, which is just the amount that **Bidders** pay.
+
+We instantiate the model in a very simple way. There are:
+- Four **Bidders**;
+- Two **Relayers**, each one managing a set of two **Bidders** there is no overlap between these set, that is, there is no **Bidder** submitting their bid to more than one **Relayer**.
+- One **Proposer**, which has to choose between the two bids selected by **Relayers**.
+
+In this model **Relayers** just pick the biggest big out of the subset they manage. On the contrary, we modelled different auctioning procedures for **Proposer**, namely:
+
+- k-price auctions, where the winning bid is the k-highest one. These actions can have a reserve price, meaning that no **Bidder** wins the auction if the reserve price is not met.
+- all-pay auctions, where all **Bidders** pay, not just the winning one.
+
+
 
 # Code deep dive
 
@@ -299,20 +310,21 @@ In this game the best strategy is clearly (A,A1). Nevertheless, we need to suppl
 
 ## File structure
 
-The model is composed of several files, stored in three branches. In the `main` branch:
+The model is composed of several files, stored in `main` branch:
 
 - The `app` folder contains `Main.hs`, where the `main` function is defined. This is the function executed when one gives `stack run` (cf. [Running the analytics](#running-the-analytics)).
 - The `pics` folder exists only for the purpose of this documentation file.
 - The `test` folders contain some basic Haskell testing code. Here 'test' has to be intended in the traditional development sense, that is, these are tests to check that the code works properly, and aren not about model analytics.
 
-The code proper is contained in the `src` folder,
-
+The code proper is contained in the `src` folder:
+- `AuctionSupportFunctions.hs` defines all the auction procedures we are going to use as simple Haskell functions. Here we also define how payoffs are calculated.
+- `Model.hs` is where the fully assembled games are.
 - `Strategies.hs` defines the strategies for all games in this folder. See [Supplying strategies](#supplying-strategies) for details.
-- `Analytics.hs` contains the definition of equilibrium.These are automatically run by the `main` function when calling `stack run` in [Normal execution](#normal-execution) mode. Alternatively, one can call these functions directly while in [Interactive execution](#interactive-execution) mode, as in, for instance,
+- `Analytics.hs` contains the definition of equilibrium. These are automatically run by the `main` function when calling `stack run` in [Normal execution](#normal-execution) mode. Alternatively, one can call these functions directly while in [Interactive execution](#interactive-execution) mode, as in, for instance,
 
 
     Please refer to [Running the analytics](#running-the-analytics) for more information.
-
+- `Types.hs` defines the types of many of the things we use in our model, such as private values, outcome of an auction, etc.
 
 # Analytics
 
