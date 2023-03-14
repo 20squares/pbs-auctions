@@ -6,7 +6,6 @@
     - [Interactive execution](#interactive-execution)
     - [Addendum: Installing haskell](#addendum-installing-haskell)
 - [Explaining the model](#explaining-the-model)
-
 - [Code deep dive](#code-deep-dive)
     - [Recap: DSL primer](#recap-dsl-primer)
         - [The building blocks](#the-building-blocks)
@@ -22,7 +21,6 @@
 - [Analytics](#analytics)
     - [Reading the analytics](#reading-the-analytics)
     - [Strategies emplyed in the analysis](#strategies-employed-in-the-analysis)
-    
     - [Running the analytics](#running-the-analytics)
     - [Results](#results)
     - [Sanity checks](#sanity-checks)
@@ -108,13 +106,13 @@ these errors hint at missing GCC libraries, which will have to be installed inde
 
 Here, we give a more detailed explanation of what our model does.
 
-Our model is simple and comprises three different actors:
+Our model is simple and comprises two different actors:
 
 - **Bidders**, which represent builders competing for blockspace. Each **Bidder** has a private valuation that is drawn from nature. This private valuation represents how much the **Bidder** thinks that the blockspace on auction 'is really worth'. The **Bidder** observes the private value and uses it to formulate a bid.
-- **Relayers**, that relay the bids to **Proposer**. A relayer observes bids from a subset of builders, and has to filter one **Bidder** from the subset, whose bid will be relayed to the **Proposer**. Each relayer is free to chose whatever procedure for the filtering. **Relayers** are not strategic actors in this model, meaning that the selection they perform is completely mechanicistic.
-- The **Proposer**, which observes the bids relayed by the **Relayers**, and awards the blockspace to a winning **Bidder**. Proposer is free to chose the auctioning procedure.
+- The **Proposer**, which observes the bids and awards the blockspace to a winning **Bidder**. Proposer is free to chose the auctioning procedure.
 
-In practice, our model implements a *nested auction*, since **Bidders** have to first compete to be selected by their **Relayer**, and then have to compete to be selected by **Proposer**. 
+Moreover, we will sometimes make use of a third, non-strategic component, called **Relayer**: These are intermediate components that relay the bids to **Proposer**. A relayer observes bids from a subset of builders, and has to filter one **Bidder** from the subset, whose bid will be relayed to the **Proposer**. Each relayer is free to chose whatever procedure for the filtering. **Relayers** are not strategic actors, meaning that the selection they perform is completely mechanicistic.
+In practice, when **Relayers** are used we implement a *nested auction*, since **Bidders** have to first compete to be selected by their **Relayer**, and then have to compete to be selected by **Proposer**. 
 
 **Bidders** want to maximize their payoff, which is calculated as:
 - A profit corresponding to the difference between the private valuation the **Bidder** has and how much the **Bidder** paid, in the case the **Bidder** wins the auction;
@@ -122,19 +120,19 @@ In practice, our model implements a *nested auction*, since **Bidders** have to 
 
 Similarly, **Proposer** wants to maximize their payoff, which is just the amount that **Bidders** pay.
 
-We instantiate the model in a very simple way. There are:
+We instantiate the model in a very simple way. In the case named `Current Status quo` there are:
 - Four **Bidders**;
-- Two **Relayers**, each one managing a set of two **Bidders** there is no overlap between these set, that is, there is no **Bidder** submitting their bid to more than one **Relayer**.
+- Two **Relayers**, each one managing a set of two **Bidders**. There is no overlap between these sets, that is, there is no **Bidder** submitting their bid to more than one **Relayer**.
 - One **Proposer**, which has to choose between the two bids selected by **Relayers**.
 
-In this model **Relayers** just pick the biggest big out of the subset they manage. On the contrary, we modelled different auctioning procedures for **Proposer**, namely:
+In this model **Relayers** just pick the biggest big out of the subset they manage, whereas **Proposer** doesn't follow any auction procedure and can pick the winning bid following any possible strategy.
 
-- No auction, where **Proposer** doesn't follow any auction procedure and can pick the winning bid following any possible strategy.
-- First price auctions, where the winning bid is the highest one. These auctions can have a reserve price, meaning that no **Bidder** wins the auction if the reserve price is not met. For now, we set this price to zero.
-- Second price auctions, where the winning bid is the second highest one. Again, for now we set the reserve price to zero.
+In the case named `Assembled auctions` instead there are:
+- Four **Bidders**;
+- One **Proposer**, which has no strategic content. **Proposer** here just runs an auction mecanicistically. We modelled different auction procedures for **Proposer**, namely:
+
+- First price auction, where the winning bid is the highest one. These auctions can have a reserve price, meaning that no **Bidder** wins the auction if the reserve price is not met. For now, we set this price to zero.
 - All-pay auctions, where all **Bidders** pay, not just the winning one.
-
-
 
 # Code deep dive
 
@@ -377,6 +375,45 @@ Observable State:
 
 Here we report about the strategies we used in our tests. As one can see, since many of the prisoner's dilemma games we defined default to previously defined variations in some circumstances, we were able to make some strategic definitions only once and re-use them in more complicated models.
 
+Essentially, each **Bidder** has two strategies. The first is to bid truthfully, meaning bidding exactly the value of the private valuation:
+```haskell
+-- | Truth telling strategy
+truthTellingStrategy
+  :: Kleisli
+       Stochastic
+       (Agent, PrivateValue)
+       BidValue
+truthTellingStrategy =
+  Kleisli (\((_,value)) -> playDeterministically $ value)
+```
+The other one is to just bid a share of the private value. This corresponds to not being completely truthful about one's real valuation of the good on auction.
+```haskell
+-- | Bid a fraction of the valuation
+-- NOTE this can be used for manually adjusting bids
+bidShareOfValue
+  :: Double
+  -> Kleisli
+       Stochastic
+       (Agent, PrivateValue)
+       BidValue
+bidShareOfValue share =
+  Kleisli (\((_,value)) -> playDeterministically $ roundTo 1 (share * value))
+```
+
+As for **Proposer** in the status quo model, the strategy consists in just picking the biggest bid:
+```haskell
+-- Proposer strategy
+proposerMaxBid
+  :: Kleisli
+       Stochastic
+       [Bid]
+       Bid
+proposerMaxBid = 
+ Kleisli
+   (\bidLS ->
+      let maxBid = maximumBy (comparing snd) bidLS
+          in playDeterministically $ maxBid)
+```
 
 ## Running the analytics
 
