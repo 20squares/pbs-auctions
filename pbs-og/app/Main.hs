@@ -7,8 +7,8 @@ import Auctions.Strategies
 
 main :: IO ()
 main = do
---  putStrLn "Current Auction: "
---  printEquilibriumCurrentAuction parametersCurrentAuction (currentAuctionShareOfValueStrategy 0.75)
+  putStrLn "Current Auction: "
+  printEquilibriumCurrentAuction parametersCurrentAuction (currentAuctionShareOfValueStrategy 0.75)
   putStrLn "First Price Auction: "
   printEquilibriumSimultaneousBidAuction parametersFPAuction (bidShareOfValueStrategyTuple 0.75)
 --  putStrLn "Second Price Auction: "
