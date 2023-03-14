@@ -13,8 +13,8 @@ Defines the main parameterizations used in the analysis
 
 zeroReservePrice = 0
 
-privateValueLS = [0,1..10]
-
+privateValueLS = [0,2..10]
+actionLS = [0,0.5..10] 
 
 -- Current relay auction
 parametersCurrentAuction = Parameters
@@ -27,10 +27,10 @@ parametersCurrentAuction = Parameters
   , valueSpace2 = privateValueLS
   , valueSpace3 = privateValueLS
   , valueSpace4 = privateValueLS
-  , actionSpace1 = privateValueLS
-  , actionSpace2 = privateValueLS
-  , actionSpace3 = privateValueLS
-  , actionSpace4 = privateValueLS
+  , actionSpace1 = actionLS
+  , actionSpace2 = actionLS
+  , actionSpace3 = actionLS
+  , actionSpace4 = actionLS
   , reservePrice = undefined
   , winningPrice = undefined
   }
@@ -48,10 +48,10 @@ parametersFPAuction = Parameters
   , valueSpace2 = privateValueLS
   , valueSpace3 = privateValueLS
   , valueSpace4 = privateValueLS
-  , actionSpace1 = privateValueLS
-  , actionSpace2 = privateValueLS
-  , actionSpace3 = privateValueLS
-  , actionSpace4 = privateValueLS
+  , actionSpace1 = actionLS
+  , actionSpace2 = actionLS
+  , actionSpace3 = actionLS
+  , actionSpace4 = actionLS
   , reservePrice = zeroReservePrice
   , winningPrice = 1
   }

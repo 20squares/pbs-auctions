@@ -63,6 +63,12 @@ transformPaymentsReservePrice winningPrice  = [opengame|
    inputs    : (bids,reservePrice) ;
    feedback  :      ;
    operation : forwardFunction (auctionPaymentResPrice paymentReservePrice winningPrice) ;
+   outputs   : paymentsLottery ;
+   returns   :      ;
+
+   inputs    : paymentsLottery ;
+   feedback  :      ;
+   operation : natureEndInput ;
    outputs   : payments ;
    returns   :      ;
    :-----------------:
@@ -81,6 +87,12 @@ transformPayments winningPrice reservePrice = [opengame|
    inputs    : (bids, reservePrice) ;
    feedback  :      ;
    operation : forwardFunction (auctionPaymentResPrice paymentReservePrice winningPrice) ;
+   outputs   : paymentsLottery ;
+   returns   :      ;
+
+   inputs    : paymentsLottery ;
+   feedback  :      ;
+   operation : natureEndInput ;
    outputs   : payments ;
    returns   :      ;
    :-----------------:
@@ -99,6 +111,12 @@ transformAllPayPayments  = [opengame|
    inputs    : bids ;
    feedback  :      ;
    operation : forwardFunction auctionPaymentAllPay ;
+   outputs   : paymentsLottery ;
+   returns   :      ;
+
+   inputs    : paymentsLottery ;
+   feedback  :      ;
+   operation : natureEndInput ;
    outputs   : payments ;
    returns   :      ;
    :-----------------:

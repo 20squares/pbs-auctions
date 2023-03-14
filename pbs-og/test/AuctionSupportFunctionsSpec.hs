@@ -3,7 +3,11 @@ module  AuctionSupportFunctionsSpec where
 import Auctions.AuctionSupportFunctions
 import Auctions.Types
 
+import OpenGames.Engine.Engine (playDeterministically,Stochastic, distFromList)
+
+
 import Test.Hspec
+import Numeric.Probability.Distribution (decons)
 
 spec :: Spec
 spec = do
@@ -28,13 +32,19 @@ testOutcomes3 = [("bidder1",20,True),("bidder2",0,False),("bidder3",0,False)]
 -- Outcomes: From _testBids1_ below; fp
 testOutcomes4 = [("bidder1",10,True),("bidder2",0,False),("bidder3",0,False)]
 
+-- Outcomes: From _testBids2_ belowl; 
+testOutcomes5 :: Stochastic [AuctionOutcome]
+testOutcomes5 = distFromList  [([("bidder1", 20.0, True), ("bidder2", 10.0, False), ("bidder3", 7.0, False), ("bidder4", 20.0, False)], 0.5), ([("bidder1", 20.0, False), ("bidder2", 10.0, False), ("bidder3", 7.0, False), ("bidder4", 20.0, True)], 0.5)]
+
+-- Outcomes: From _testBids2_ belowl; 2nd price
+testOutcomes6 :: Stochastic [AuctionOutcome]
+testOutcomes6 = distFromList  [([("bidder1", 20.0, True), ("bidder2", 0, False), ("bidder3", 0, False), ("bidder4", 0, False)], 0.5), ([("bidder1", 0, False), ("bidder2", 0, False), ("bidder3", 0, False), ("bidder4", 20.0, True)], 0.5)]
+
 -- Bids
 testBids1 = [("bidder1",20),("bidder2",10),("bidder3",7)]
 
 -- Bids
 testBids2 = [("bidder1",20),("bidder2",10),("bidder3",7),("bidder4",20)]
-
-
 
 -- Tests
 selectPayoffsTest = describe
@@ -89,24 +99,31 @@ auctionWinnerReservePriceTest = describe
          ("bidder1",20)
      it "correct winning bids - 1" $ do
        shouldBe
-         (auctionWinner testBids1)
-         testOutcomes1
-
+         (decons $ auctionWinner testBids1)
+         (decons $ playDeterministically testOutcomes1)
+     it "correct bids in case of several highest bids" $ do
+       shouldBe
+         (decons $ auctionWinner testBids2)
+         (decons $ testOutcomes5)
 
 auctionPaymentAllPayTest = describe
    "compute outcomes for all pay auction" $ do
      it "correct outcomes - 1" $ do
        shouldBe
-         (auctionPaymentAllPay testBids1)
-         testOutcomes1
+         (decons $ auctionPaymentAllPay testBids1)
+         (decons $ playDeterministically testOutcomes1)
 
 auctionPaymentResPriceTest = describe
    "compute outcomes for simultaneous bid auction with reserve price" $ do
      it "correct outcomes - fp" $ do
        shouldBe
-         (auctionPaymentResPrice paymentReservePrice 1 (testBids1,0))
-         testOutcomes3
+         (decons $ auctionPaymentResPrice paymentReservePrice 1 (testBids1,0))
+         (decons $ playDeterministically testOutcomes3)
      it "correct outcomes - 2ndp" $ do
        shouldBe
-         (auctionPaymentResPrice paymentReservePrice 2 (testBids1,0))
-         testOutcomes4
+         (decons $ auctionPaymentResPrice paymentReservePrice 2 (testBids1,0))
+         (decons $ playDeterministically testOutcomes4)
+     it "correct outcomes - 2ndp - with several highest bids" $ do
+       shouldBe
+         (decons $ auctionPaymentResPrice paymentReservePrice 2 (testBids2,0))
+         (decons $ testOutcomes6)

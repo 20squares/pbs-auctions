@@ -42,6 +42,7 @@ library
       base >=4.7 && <5
     , containers
     , open-games-hs
+    , probability
   default-language: Haskell2010
 
 executable pbs-og-exe
@@ -56,6 +57,7 @@ executable pbs-og-exe
     , containers
     , open-games-hs
     , pbs-og
+    , probability
   default-language: Haskell2010
 
 test-suite pbs-og-test
@@ -73,4 +75,5 @@ test-suite pbs-og-test
     , hspec
     , open-games-hs
     , pbs-og
+    , probability
   default-language: Haskell2010

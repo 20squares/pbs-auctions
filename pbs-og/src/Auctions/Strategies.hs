@@ -12,6 +12,7 @@ import OpenGames.Engine.Engine
 
 import Data.List (maximumBy)
 import Data.Ord (comparing)
+
 {-
 Defines the strategies
 -}
@@ -37,8 +38,18 @@ bidShareOfValue
        (Agent, PrivateValue)
        BidValue
 bidShareOfValue share =
-  Kleisli (\((_,value)) -> playDeterministically $ value * share)
+  Kleisli (\((_,value)) -> playDeterministically $ matchValues value)  --roundTo 0.5 (share * value))
 
+roundTo :: RealFrac a => a -> a -> a
+roundTo threshold x = fromIntegral (round (x / threshold)) * threshold
+
+matchValues x
+  | x == 0 = 0
+  | x == 2 = 1.5
+  | x == 4 = 3
+  | x == 6 = 4.5
+  | x == 8 = 6
+  | x == 10 = 6.5
 --------------------
 -- Proposer strategy
 proposerMaxBid
