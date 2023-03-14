@@ -33,9 +33,8 @@ parametersCurrentAuction = Parameters
   , actionSpace4 = actionLS
   , reservePrice = undefined
   , winningPrice = undefined
+  , approxError = 0.4
   }
-
-
 
 -- FP auction
 parametersFPAuction = Parameters
@@ -54,6 +53,7 @@ parametersFPAuction = Parameters
   , actionSpace4 = actionLS
   , reservePrice = zeroReservePrice
   , winningPrice = 1
+  , approxError  = 0.4
   }
 
 -- 2ndP auction
@@ -73,6 +73,7 @@ parameters2ndPAuction = Parameters
   , actionSpace4 = privateValueLS
   , reservePrice = zeroReservePrice
   , winningPrice = 2
+  , approxError  = 0
   }
 
 -- All pay auction
@@ -92,4 +93,5 @@ parametersAllPayAuction = Parameters
   , actionSpace4 = privateValueLS
   , reservePrice = undefined
   , winningPrice = undefined
+  , approxError = 0
   }

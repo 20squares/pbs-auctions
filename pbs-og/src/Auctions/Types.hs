@@ -39,4 +39,5 @@ data Parameters = Parameters
   , actionSpace4 :: [BidValue]
   , reservePrice :: BidValue
   , winningPrice :: WinningPrice
+  , approxError  :: Double
   } deriving (Show)

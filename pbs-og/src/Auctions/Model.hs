@@ -26,7 +26,7 @@ Contains the relevant simultaneous bid auctions needed
 -------------------
 
 -- | Describes the bidder stage; the number of players, individual evaluations etc. can be changed here w/o affecting the assembled auctions further below
-bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 approxError = [opengame| 
    inputs    :      ;
    feedback  :      ;
 
@@ -45,13 +45,13 @@ bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [openg
 
    inputs    :  name1Value    ;
    feedback  :      ;
-   operation :  biddingStage name1 actionSpace1 ;
+   operation :  biddingStage name1 actionSpace1 approxError ;
    outputs   :  name1Dec ;
    returns   :  payments  ;
 
    inputs    :  name2Value    ;
    feedback  :      ;
-   operation :  biddingStage name2 actionSpace2 ;
+   operation :  biddingStage name2 actionSpace2 approxError ;
    outputs   :  name2Dec ;
    returns   :  payments  ;
 
@@ -69,7 +69,7 @@ bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [openg
 
 -----------------------
 -- Builders to relay
-buildersToRelay name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4  = [opengame| 
+buildersToRelay name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError= [opengame| 
 
    inputs    :      ;
    feedback  :      ;
@@ -78,13 +78,13 @@ buildersToRelay name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valu
 
    inputs    :  ;
    feedback  :  ;
-   operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 approxError;
    outputs   : bids1 ;
    returns   : payments ;
 
    inputs    :  ;
    feedback  :  ;
-   operation : bidders name3 name4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation : bidders name3 name4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 approxError;
    outputs   : bids2 ;
    returns   : payments ;
 
@@ -113,7 +113,7 @@ buildersToRelay name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valu
    outputs   : bidsFromRelay ;
    returns   : payments;
 |]
-
+  
 validatorsDecision nameProposer  = [opengame| 
 
    inputs    : bids ;
@@ -142,7 +142,7 @@ validatorsDecision nameProposer  = [opengame|
 
 ---------------------
 -- Assemble full game
-currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 = [opengame| 
+currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError= [opengame| 
 
    inputs    : ;
    feedback  : ;
@@ -151,7 +151,7 @@ currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 
 
    inputs    :  ;
    feedback  :  ;
-   operation :  buildersToRelay name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 ;
+   operation :  buildersToRelay name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError;
    outputs   :  bids ;
    returns   :  paymentsBidders;
 
@@ -181,7 +181,7 @@ currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 
 
 -- 3.1: 2 players with exogenous reserve price
 -- NOTE this format allows for first price, second price w/o reserve price
-reservePriceExogenous name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 winningPrice reservePrice = [opengame| 
+reservePriceExogenous name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 winningPrice reservePrice approxError = [opengame| 
 
    inputs    :      ;
    feedback  :      ;
@@ -189,13 +189,13 @@ reservePriceExogenous name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace
    :-----------------:
    inputs    :  ;
    feedback  :  ;
-   operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 approxError ;
    outputs   : bids1 ;
    returns   : payments ;
 
    inputs    :  ;
    feedback  :  ;
-   operation : bidders name3 name4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation : bidders name3 name4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 approxError ;
    outputs   : bids2 ;
    returns   : payments ;
 
@@ -217,7 +217,7 @@ reservePriceExogenous name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace
    |]
 
 -- 3.1:  allpay auction with 2 players
-biddingAllPay  name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4  = [opengame| 
+biddingAllPay  name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError = [opengame| 
 
    inputs    : ;
    feedback  : ;
@@ -225,13 +225,13 @@ biddingAllPay  name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 value
    :-----------------:
    inputs    :  ;
    feedback  :  ;
-   operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 approxError ;
    outputs   : bids1 ;
    returns   : payments ;
 
    inputs    :  ;
    feedback  :  ;
-   operation : bidders name3 name4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation : bidders name3 name4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 approxError ;
    outputs   : bids2 ;
    returns   : payments ;
 

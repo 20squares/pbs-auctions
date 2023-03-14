@@ -35,7 +35,7 @@ natureDrawsTypeStage name valueSpace = [opengame|
   |]
 
 -- Individual bidding stage
-biddingStage name actionSpace = [opengame|
+biddingStage name actionSpace approxError = [opengame|
 
     inputs    :  nameValuePair  ;
     feedback  :   ;
@@ -43,7 +43,7 @@ biddingStage name actionSpace = [opengame|
     :---------------------------:
     inputs    :  nameValuePair  ;
     feedback  :   ;
-    operation :  dependentDecision name (const actionSpace) ;
+    operation :  dependentEpsilonDecision approxError name (const actionSpace) ;
     outputs   :  bid ;
     returns   :  setPayoff nameValuePair payments  ;
     :---------------------------:

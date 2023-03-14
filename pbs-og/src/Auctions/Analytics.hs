@@ -23,14 +23,14 @@ The idea is to make the components comparable.
 -}
 
 -- The current status quo
-equilibriumCurrentAuction Parameters{..} strategy = evaluate (currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4) strategy ctxt
+equilibriumCurrentAuction Parameters{..} strategy = evaluate (currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError) strategy ctxt
  where
    ctxt = StochasticStatefulContext (pure ((),())) (\_ _ -> pure ())
 
 printEquilibriumCurrentAuction parameters strategy = generateIsEq $ equilibriumCurrentAuction parameters strategy
 
 -- Simultaneous bid auction
-equilibriumSimultaneousBidAuction Parameters{..} strategy = evaluate (reservePriceExogenous name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 winningPrice reservePrice) strategy ctxt
+equilibriumSimultaneousBidAuction Parameters{..} strategy = evaluate (reservePriceExogenous name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 winningPrice reservePrice approxError) strategy ctxt
  where
    ctxt = StochasticStatefulContext (pure ((),())) (\_ _ -> pure ())
 
@@ -38,7 +38,7 @@ printEquilibriumSimultaneousBidAuction parameters strategy = generateIsEq $ equi
 
 
 -- All pay auction
-equilibriumAllPayAuction Parameters{..} strategy = evaluate (biddingAllPay  name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4) strategy ctxt
+equilibriumAllPayAuction Parameters{..} strategy = evaluate (biddingAllPay  name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError) strategy ctxt
  where
    ctxt = StochasticStatefulContext (pure ((),())) (\_ _ -> pure ())
 

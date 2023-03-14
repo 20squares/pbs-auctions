@@ -26,7 +26,7 @@ This is a sketch of several nested first price auctions. This is not complete an
 
 -- Auxiliary component
 -- NOTE this format allows for first price, second price w/o reserve price
-reservePriceExogenousExternalValues name1 name2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  winningPrice reservePrice  = [opengame| 
+reservePriceExogenousExternalValues name1 name2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  winningPrice reservePrice approxError = [opengame| 
 
    inputs    :    name1Value, name2Value  ;
    feedback  :      ;
@@ -35,13 +35,13 @@ reservePriceExogenousExternalValues name1 name2 valueSpace1 valueSpace2 actionSp
 
    inputs    :  name1Value    ;
    feedback  :      ;
-   operation :  biddingStage name1 actionSpace1 ;
+   operation :  biddingStage name1 actionSpace1 approxError;
    outputs   :  name1Dec ;
    returns   :  payments  ;
 
    inputs    :  name2Value    ;
    feedback  :      ;
-   operation :  biddingStage name2 actionSpace2 ;
+   operation :  biddingStage name2 actionSpace2 approxError;
    outputs   :  name2Dec ;
    returns   :  payments  ;
 
@@ -56,7 +56,7 @@ reservePriceExogenousExternalValues name1 name2 valueSpace1 valueSpace2 actionSp
    returns   :      ;
    |]
 
-reservePriceExogenous2Bidders name1 name2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  winningPrice reservePrice = [opengame| 
+reservePriceExogenous2Bidders name1 name2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  winningPrice reservePrice approxError= [opengame| 
 
    inputs    :      ;
    feedback  :      ;
@@ -64,7 +64,7 @@ reservePriceExogenous2Bidders name1 name2 valueSpace1 valueSpace2 actionSpace1 a
    :-----------------:
    inputs    :  ;
    feedback  :  ;
-   operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 ;
+   operation : bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 approxError;
    outputs   : bids ;
    returns   : payments ;
 
@@ -85,7 +85,7 @@ reservePriceExogenous2Bidders name1 name2 valueSpace1 valueSpace2 actionSpace1 a
 -- Nested Auction model
 -- NOTE in this model, we assume the timing is such that lower ranked auctions take place first
 -- In this case the bidders in the last auction have already received the bids from lower ranked auctions
-nestedFirstPriceAuctions auctioneer1 auctioneer2 user1 user2 user3 user4 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  = [opengame| 
+nestedFirstPriceAuctions auctioneer1 auctioneer2 user1 user2 user3 user4 winningPrice reservePrice valueSpace1 valueSpace2 actionSpace1 actionSpace2  approxError= [opengame| 
 
    inputs    :      ;
    feedback  :      ;
@@ -93,13 +93,13 @@ nestedFirstPriceAuctions auctioneer1 auctioneer2 user1 user2 user3 user4 winning
    :-----------------:
    inputs    :      ;
    feedback  :      ;
-   operation : reservePriceExogenous2Bidders user1 user2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  winningPrice reservePrice ;
+   operation : reservePriceExogenous2Bidders user1 user2 valueSpace1 valueSpace2 actionSpace1 actionSpace2  winningPrice reservePrice approxError;
    outputs   : results1 ;
    returns   :      ;
 
    inputs    :      ;
    feedback  :      ;
-   operation : reservePriceExogenous2Bidders user3 user4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice ;
+   operation : reservePriceExogenous2Bidders user3 user4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice approxError;
    outputs   : results2 ;
    returns   :      ;
 
@@ -117,7 +117,7 @@ nestedFirstPriceAuctions auctioneer1 auctioneer2 user1 user2 user3 user4 winning
 
    inputs    :  newValuePair1, newValuePair2  ;
    feedback  :      ;
-   operation :  reservePriceExogenousExternalValues auctioneer1 auctioneer2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice ;
+   operation :  reservePriceExogenousExternalValues auctioneer1 auctioneer2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice approxError;
    outputs   :  results3 ;
    returns   :      ;
    :-----------------:
@@ -133,7 +133,7 @@ nestedFirstPriceAuctions auctioneer1 auctioneer2 user1 user2 user3 user4 winning
 -- NOTE initial willingness to participate are given exogenously
 -- TODO Do we want to use a branching game or do both auctions run in parallel anyways?
 -- FIXME the payoffs of the auction players need to be made contingent on the overall outcome
-nestedFirstPriceAuctionsReverse auctioneer1 auctioneer2 user1 user2 user3 user4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 newValuePair1 newValuePair2 winningPrice reservePrice = [opengame| 
+nestedFirstPriceAuctionsReverse auctioneer1 auctioneer2 user1 user2 user3 user4  valueSpace1 valueSpace2 actionSpace1 actionSpace2 newValuePair1 newValuePair2 winningPrice reservePrice approxError= [opengame| 
 
    inputs    :    name1Value, name2Value  ;
    feedback  :      ;
@@ -141,7 +141,7 @@ nestedFirstPriceAuctionsReverse auctioneer1 auctioneer2 user1 user2 user3 user4 
    :-----------------:
    inputs    :   name1Value, name2Value ;
    feedback  :      ;
-   operation :  reservePriceExogenousExternalValues auctioneer1 auctioneer2 valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice;
+   operation :  reservePriceExogenousExternalValues auctioneer1 auctioneer2 valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice approxError;
    outputs   :  results3 ;
    returns   :      ;
 
@@ -159,13 +159,13 @@ nestedFirstPriceAuctionsReverse auctioneer1 auctioneer2 user1 user2 user3 user4 
 
    inputs    :      ;
    feedback  :      ;
-   operation : reservePriceExogenous2Bidders user1 user2 valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice ;
+   operation : reservePriceExogenous2Bidders user1 user2 valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice approxError;
    outputs   : results1 ;
    returns   :      ;
 
    inputs    :      ;
    feedback  :      ;
-   operation : reservePriceExogenous2Bidders user3 user4 valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice ;
+   operation : reservePriceExogenous2Bidders user3 user4 valueSpace1 valueSpace2 actionSpace1 actionSpace2 winningPrice reservePrice approxError;
    outputs   : results2 ;
    returns   :      ;
 

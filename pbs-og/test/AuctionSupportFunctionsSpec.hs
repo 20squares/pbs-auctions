@@ -6,8 +6,14 @@ import Auctions.Types
 import OpenGames.Engine.Engine (playDeterministically,Stochastic, distFromList)
 
 
-import Test.Hspec
 import Numeric.Probability.Distribution (decons)
+import Test.Hspec
+
+
+{-
+Simple tests to test basic assumptions regarding the auction functionality
+-}
+
 
 spec :: Spec
 spec = do
