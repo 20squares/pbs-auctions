@@ -22,6 +22,9 @@ The idea is to make the components comparable.
 
 -}
 
+-----------------------
+-- Equilibrium checking
+
 -- The current status quo
 equilibriumCurrentAuction Parameters{..} strategy = evaluate (currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError) strategy ctxt
  where
@@ -44,3 +47,11 @@ equilibriumAllPayAuction Parameters{..} strategy = evaluate (biddingAllPay  name
 
 printEquilibriumAllPayAuction parameters strategy = generateIsEq $ equilibriumAllPayAuction parameters strategy
 
+
+--------------
+-- Simulations
+
+simulateCurrentAuction Parameters{..} strategy = play (currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError) strategy 
+
+
+printSimulationCurrentAuction parameters strategy = print $ nextState (simulateCurrentAuction parameters strategy) ()

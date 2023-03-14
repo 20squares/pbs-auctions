@@ -182,7 +182,7 @@ currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 
 
    :-----------------:
 
-   outputs   :      ;
+   outputs   :   paymentsBidders   ;
    returns   :      ;
    |]
 
