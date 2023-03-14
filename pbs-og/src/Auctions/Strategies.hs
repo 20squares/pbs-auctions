@@ -38,7 +38,7 @@ bidShareOfValue
        (Agent, PrivateValue)
        BidValue
 bidShareOfValue share =
-  Kleisli (\((_,value)) -> playDeterministically $ roundTo 0.5 (share * value))
+  Kleisli (\((_,value)) -> playDeterministically $ roundTo 1 (share * value))
 
 roundTo :: RealFrac a => a -> a -> a
 roundTo threshold x = fromIntegral (round (x / threshold)) * threshold
