@@ -13,7 +13,7 @@ Defines the main parameterizations used in the analysis
 
 zeroReservePrice = 0
 
-privateValueLS = [0,2..10]
+privateValueLS = [0,3..9]
 actionLS = [0,1..10] 
 
 -- Current relay auction

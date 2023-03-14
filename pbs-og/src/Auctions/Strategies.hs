@@ -43,13 +43,7 @@ bidShareOfValue share =
 roundTo :: RealFrac a => a -> a -> a
 roundTo threshold x = fromIntegral (round (x / threshold)) * threshold
 
-matchValues x
-  | x == 0 = 0
-  | x == 2 = 1.5
-  | x == 4 = 3
-  | x == 6 = 4.5
-  | x == 8 = 6
-  | x == 10 = 6.5
+
 --------------------
 -- Proposer strategy
 proposerMaxBid
