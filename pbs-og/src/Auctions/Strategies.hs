@@ -54,8 +54,11 @@ proposerMaxBid
 proposerMaxBid = 
  Kleisli
    (\bidLS ->
-      let maxBid = maximumBy (comparing snd) bidLS
-          in playDeterministically $ maxBid)
+      let kmax = maximum $ fmap snd bidLS
+          maxLS = filter (\(_,v) -> v == kmax) bidLS
+          in case length maxLS of
+               1 -> playDeterministically $ head maxLS
+               _ -> uniformDist maxLS)
 
 ------------------------------
 -- Aggregating complete tuples

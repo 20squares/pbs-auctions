@@ -88,17 +88,29 @@ buildersToRelay name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valu
    outputs   : bids2 ;
    returns   : payments ;
 
-   inputs    :  bids1;
+   inputs    : bids1;
    feedback  :      ;
-   operation :  forwardFunction findMaxBidRelay ;
-   outputs   :  bidRelay1 ;
-   returns   :   ;
+   operation : forwardFunction findMaxBidRelay ;
+   outputs   : bidRelayLottery1 ;
+   returns   :  ;
 
-   inputs    :  bids2;
+   inputs    : bidRelayLottery1 ;
    feedback  :      ;
-   operation :  forwardFunction findMaxBidRelay ;
-   outputs   :  bidRelay2 ;
-   returns   :   ;
+   operation : natureEndInput ;
+   outputs   : bidRelay1 ;
+   returns   :      ;
+
+   inputs    : bids2;
+   feedback  : ;
+   operation : forwardFunction findMaxBidRelay ;
+   outputs   : bidRelayLottery2 ;
+   returns   : ;
+
+   inputs    : bidRelayLottery2 ;
+   feedback  :      ;
+   operation : natureEndInput ;
+   outputs   : bidRelay2 ;
+   returns   :      ;
 
    inputs    :  bidRelay1, bidRelay2;
    feedback  :      ;

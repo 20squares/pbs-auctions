@@ -131,8 +131,14 @@ aggregateBids :: (Bid,Bid) -> Relay
 aggregateBids (b1,b2) = [b1,b2]
 
 -- Find max bid in relay
-findMaxBidRelay :: Relay -> Bid
-findMaxBidRelay ls = maximumBy (comparing snd) ls
+findMaxBidRelay :: Relay -> Stochastic Bid
+findMaxBidRelay bidLS = do
+  let kmax = maximum $ fmap snd bidLS
+      maxLS = filter (\(_,v) -> v == kmax) bidLS
+      in case length maxLS of
+            1 -> playDeterministically $ head maxLS
+            _ -> uniformDist maxLS
+
 
 -- Extract payment for proposer
 extractProposerPayment :: Bid -> BidValue
