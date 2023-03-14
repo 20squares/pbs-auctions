@@ -89,7 +89,7 @@ auctionWinnerReservePriceTest = describe
          ("bidder1",20)
      it "correct winning bids - 1" $ do
        shouldBe
-         (auctionWinner 20 testBids1)
+         (auctionWinner testBids1)
          testOutcomes1
 
 
