@@ -129,8 +129,10 @@ We instantiate the model in a very simple way. There are:
 
 In this model **Relayers** just pick the biggest big out of the subset they manage. On the contrary, we modelled different auctioning procedures for **Proposer**, namely:
 
-- k-price auctions, where the winning bid is the k-highest one. These actions can have a reserve price, meaning that no **Bidder** wins the auction if the reserve price is not met.
-- all-pay auctions, where all **Bidders** pay, not just the winning one.
+- No auction, where **Proposer** doesn't follow any auction procedure and can pick the winning bid following any possible strategy.
+- First price auctions, where the winning bid is the highest one. These auctions can have a reserve price, meaning that no **Bidder** wins the auction if the reserve price is not met. For now, we set this price to zero.
+- Second price auctions, where the winning bid is the second highest one. Again, for now we set the reserve price to zero.
+- All-pay auctions, where all **Bidders** pay, not just the winning one.
 
 
 
@@ -324,6 +326,7 @@ The code proper is contained in the `src` folder:
 
 
     Please refer to [Running the analytics](#running-the-analytics) for more information.
+- `Parametrization.hs` contains all the hardcoded exhogenous parameters to be fed to the model, such as auction reserve price, players' names, initial players' endowments etc.
 - `Types.hs` defines the types of many of the things we use in our model, such as private values, outcome of an auction, etc.
 
 # Analytics
