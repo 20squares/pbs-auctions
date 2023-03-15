@@ -12,9 +12,10 @@ module Auctions.Analytics
 import Auctions.Model
 import Auctions.Types
 
-import OpenGames.Engine.Engine
+import OpenGames.Engine.Engine hiding (Payoff)
 import OpenGames.Preprocessor
 
+import qualified Numeric.Probability.Distribution as P
 
 {-
 Contains the basic parameterization shared across different auctions.
@@ -22,6 +23,17 @@ There are two type of analyses:
 1. (Bayesian) Nash eq. checks
 2. Simulations
 -}
+
+-------------------------
+-- 0. Auxiliary functions
+-------------------------
+
+-- Computes the expected payment for each bidder
+formExpectedPayment
+  :: Stochastic [AuctionOutcome] -> [BidValue]
+formExpectedPayment ls =
+  let transformedLS = fmap (\(valueLS,p) -> fmap (\(_,b,_) -> b *p) valueLS) (P.decons ls)
+      in foldr1 (zipWith (+)) transformedLS
 
 --------------------------
 -- 1. Equilibrium checking
@@ -56,9 +68,9 @@ printEquilibriumAllPayAuction parameters strategy = generateIsEq $ equilibriumAl
 -- Current status quo
 simulateCurrentAuction Parameters{..} strategy = play (currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError) strategy 
 
-printSimulationCurrentAuction parameters strategy = print $ nextState (simulateCurrentAuction parameters strategy) ()
+printSimulationCurrentAuction parameters strategy = formExpectedPayment $ nextState (simulateCurrentAuction parameters strategy) ()
 
 -- Simultaneous bid auction
 simulateSimultaneousBidAuction Parameters{..} strategy = play (reservePriceExogenous name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 winningPrice reservePrice approxError) strategy
 
-printsimulateSimultaneousBidAuction parameters strategy = print $ nextState (simulateSimultaneousBidAuction parameters strategy) ()
+printsimulateSimultaneousBidAuction parameters strategy = formExpectedPayment $ nextState (simulateSimultaneousBidAuction parameters strategy) ()
