@@ -73,4 +73,9 @@ printSimulationCurrentAuction parameters strategy = formExpectedPayment $ nextSt
 -- Simultaneous bid auction
 simulateSimultaneousBidAuction Parameters{..} strategy = play (reservePriceExogenous name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 winningPrice reservePrice approxError) strategy
 
-printsimulateSimultaneousBidAuction parameters strategy = formExpectedPayment $ nextState (simulateSimultaneousBidAuction parameters strategy) ()
+printSimulationSimultaneousBidAuction parameters strategy = formExpectedPayment $ nextState (simulateSimultaneousBidAuction parameters strategy) ()
+
+-- All pay auction
+simulateAllPayAuction Parameters{..} strategy = play (biddingAllPay  name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError) strategy
+
+printSimulationAllPayAuction parameters strategy = formExpectedPayment $ nextState (simulateAllPayAuction parameters strategy) ()
