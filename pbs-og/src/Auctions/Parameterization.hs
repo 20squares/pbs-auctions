@@ -93,5 +93,5 @@ parametersAllPayAuction = Parameters
   , actionSpace4 = privateValueLS
   , reservePrice = undefined
   , winningPrice = undefined
-  , approxError = 0
+  , approxError = 0.4
   }

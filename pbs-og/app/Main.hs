@@ -13,8 +13,8 @@ main = do
 --  printEquilibriumSimultaneousBidAuction parametersFPAuction (bidShareOfValueStrategyTuple 0.75)
 --  putStrLn "Second Price Auction: "
 --  printEquilibriumSimultaneousBidAuction parameters2ndPAuction truthTellingStrategyTuple
---  putStrLn "All pay Auction: "
---  printEquilibriumAllPayAuction parametersAllPayAuction (bidShareOfValueStrategyTuple 0.6)
+  putStrLn "All pay Auction: "
+  printEquilibriumAllPayAuction parametersAllPayAuction allPayAuctionStrategyTuple
   putStrLn "~~~~~~~Simulate current auction outcome~~~~~~~"
   putStrLn "List of expected bids: "
   let expectedOutcomeCurrent =  printSimulationCurrentAuction parametersCurrentAuction (currentAuctionShareOfValueStrategy 0.75)

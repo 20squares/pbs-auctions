@@ -43,6 +43,18 @@ bidShareOfValue share =
 roundTo :: RealFrac a => a -> a -> a
 roundTo threshold x = fromIntegral (round (x / threshold)) * threshold
 
+bidAllPay
+  :: Kleisli
+       Stochastic
+       (Agent, PrivateValue)
+       BidValue
+bidAllPay =
+  Kleisli (\((_,value)) -> matchDiscreteSchedule  value)
+  where matchDiscreteSchedule 0 = playDeterministically 0
+        matchDiscreteSchedule 3 = playDeterministically 0
+        matchDiscreteSchedule 6 = uniformDist [0,3]
+        matchDiscreteSchedule 9 = uniformDist [3,6]
+
 
 --------------------
 -- Proposer strategy
@@ -80,6 +92,7 @@ bidShareOfValueStrategyTuple x =
   ::- bidShareOfValue x
   ::- Nil
 
+-- | Bidding for current auction
 currentAuctionShareOfValueStrategy x =
       bidShareOfValue x
   ::- bidShareOfValue x
@@ -87,3 +100,12 @@ currentAuctionShareOfValueStrategy x =
   ::- bidShareOfValue x
   ::- proposerMaxBid
   ::- Nil
+
+-- | Bidding for all pay auction
+allPayAuctionStrategyTuple  =
+      bidAllPay
+  ::- bidAllPay
+  ::- bidAllPay
+  ::- bidAllPay
+  ::- Nil
+
