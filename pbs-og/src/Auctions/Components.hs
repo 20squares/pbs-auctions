@@ -77,7 +77,7 @@ transformPaymentsReservePrice winningPrice  = [opengame|
    returns   :      ;
   |]
 
--- Transforms the bids into a random reshuffling
+-- Transforms the bids into payments with exogenous reserve price
 transformPayments winningPrice reservePrice = [opengame|
 
    inputs    : bids ;
@@ -101,7 +101,7 @@ transformPayments winningPrice reservePrice = [opengame|
    returns   :      ;
   |]
 
--- Transforms the bids into a random reshuffling
+-- Transforms the bids into payments for the all pay case 
 transformAllPayPayments  = [opengame|
 
    inputs    : bids ;
