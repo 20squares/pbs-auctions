@@ -6,6 +6,7 @@
     - [Interactive execution](#interactive-execution)
     - [Addendum: Installing haskell](#addendum-installing-haskell)
 - [Explaining the model](#explaining-the-model)
+    - [Equilibrium vs. Simulations](#equilibrium-vs-simulations)
 - [Code deep dive](#code-deep-dive)
     - [Recap: DSL primer](#recap-dsl-primer)
         - [The building blocks](#the-building-blocks)
@@ -132,7 +133,17 @@ In the case named `Assembled auctions` instead there are:
 - One **Proposer**, which has no strategic content. **Proposer** here just runs an auction mecanicistically. We modelled different auction procedures for **Proposer**, namely:
 
 - First price auction, where the winning bid is the highest one. These auctions can have a reserve price, meaning that no **Bidder** wins the auction if the reserve price is not met. For now, we set this price to zero.
+- Second price auction, where the winning bid is the second highest one. Again, these auctions can have a reserve price, which we set to zero for now.
 - All-pay auctions, where all **Bidders** pay, not just the winning one.
+
+## Equilibrium Vs. Simulations
+
+In this model, aside of equilibrium checking, we also provided simulation capabilities. This is defined in `Analytics.hs`, see [File structure](#file-structure) for more information. In a nutshell:
+
+- Equilibrium checking takes a strategy, computes payoffs, and search for any strategic deviation that would result in a better payoff for one of the players.
+- Simulations just plays the strategy, without looking for profitable deviations.
+
+The reason why we deem simulations important in this framework is because they can be used to quickly check how profitable a given strategy is. Simulations are also computationally lightweight compared to equilibrium checking.
 
 # Code deep dive
 
@@ -399,6 +410,23 @@ bidShareOfValue
 bidShareOfValue share =
   Kleisli (\((_,value)) -> playDeterministically $ roundTo 1 (share * value))
 ```
+
+In the 'all pay' auction, we adopt the following strategy: If the private evaluation for **Bidder** is $0$ or $3$, the value is bid truthfully. If it is $6$ or $9$, a random value between $0$ and $3$ and $3$ and $6$, respectively, is played. This strategy may seem weird, but notice that underbetting makes sense in a context where also losing bidders have to pay, especially if the private valuation is high.
+
+```haskell
+bidAllPay
+  :: Kleisli
+       Stochastic
+       (Agent, PrivateValue)
+       BidValue
+bidAllPay =
+  Kleisli (\((_,value)) -> matchDiscreteSchedule  value)
+  where matchDiscreteSchedule 0 = playDeterministically 0
+        matchDiscreteSchedule 3 = playDeterministically 0
+        matchDiscreteSchedule 6 = uniformDist [0,3]
+        matchDiscreteSchedule 9 = uniformDist [3,6]
+```
+
 
 As for **Proposer** in the status quo model, the strategy consists in just picking the biggest bid:
 ```haskell
