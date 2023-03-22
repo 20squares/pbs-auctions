@@ -7,6 +7,7 @@
     - [Addendum: Installing haskell](#addendum-installing-haskell)
 - [Explaining the model](#explaining-the-model)
     - [Equilibrium vs. Simulations](#equilibrium-vs-simulations)
+    - [Approximate equilibrium](#approximate-equilibrium)
 - [Code deep dive](#code-deep-dive)
     - [Recap: DSL primer](#recap-dsl-primer)
         - [The building blocks](#the-building-blocks)
@@ -144,6 +145,11 @@ In this model, aside of equilibrium checking, we also provided simulation capabi
 - Simulations just plays the strategy, without looking for profitable deviations.
 
 The reason why we deem simulations important in this framework is because they can be used to quickly check how profitable a given strategy is. Simulations are also computationally lightweight compared to equilibrium checking.
+
+## Approximate equilibrium
+
+In some of the models we developed, such as the ones employing first price auctions, we adopted an approximate version of equilibrium, which discards profitable strategic deviations if profits are closer than a fixed $\epsilon$ to the current one. The reason for this is that some results around equilibria in auction theory depend on a hypothesis of continuity: Namely, it is postulated that some variables range within the real numbers. Computers force us to work in a discretized settings, the consequence being that this hypothesis cannot satisfied in our models. Approximate equilibria allow us to 'blur' the line between discrete and continuous, and to obtain results in line with the ones 'pen and paper' auction theory would predict.
+
 
 # Code deep dive
 
@@ -329,6 +335,7 @@ The model is composed of several files, stored in `main` branch:
 
 The code proper is contained in the `src` folder:
 - `AuctionSupportFunctions.hs` defines all the auction procedures we are going to use as simple Haskell functions. Here we also define how payoffs are calculated.
+- `Components.hs` defines subgames modelling reusable components such as bidders, which comprise the final games in `Model.hs`.
 - `Model.hs` is where the fully assembled games are.
 - `Strategies.hs` defines the strategies for all games in this folder. See [Supplying strategies](#supplying-strategies) for details.
 - `Analytics.hs` contains the definition of equilibrium. These are automatically run by the `main` function when calling `stack run` in [Normal execution](#normal-execution) mode. Alternatively, one can call these functions directly while in [Interactive execution](#interactive-execution) mode, as in, for instance,
