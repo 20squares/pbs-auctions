@@ -14,8 +14,6 @@ Contains basic functionality needed for different auction formats
 -}
 
 
-
-
 ----------------------
 -- Determine max bid
 ----------------------
@@ -154,6 +152,32 @@ computeOutcomeFunction (agent,bid) ls =
            then (k,bid,True)
            else (k,0,False)
      in fmap updateFunction ls
+
+
+
+-------------------
+-- Dynamic auctions
+-------------------
+
+terminationRuleJapaneseAuction :: [BidJapaneseAuction] -> BidValue -> BidValue -> AuctionTerminated 
+terminationRuleJapaneseAuction ls currentValue increaseBid =
+  if [x | (n,x) <- ls, x == True] == []
+     then Terminated
+     else OnGoing (currentValue + increaseBid)
+
+winnerJapaneseAuction :: [BidJapaneseAuction] -> BidValue -> Stochastic [AuctionOutcome]
+winnerJapaneseAuction bids currentValue =
+  let winnersOnly = filter (\(_,bidding) -> bidding == True) bids
+      in case length winnersOnly of
+            1 -> playDeterministically $ fmap (generatePayment currentValue) bids
+            _ -> do
+                 (winnerName,_) <- uniformDist winnersOnly
+                 let outcomes' = fmap (\(name,_) -> if name /= winnerName then (name,0,False) else (name,-currentValue,True)) bids
+                 playDeterministically outcomes'
+  where generatePayment v (n,bidding) =
+          if bidding == True
+             then (n,-v,True)
+             else (n,0,False)
 
 ----------------------------------------------------
 -- EXPERIMENTAL Additional functionality for hierarchical auctions

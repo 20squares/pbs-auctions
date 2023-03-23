@@ -3,6 +3,8 @@ module Auctions.Types
 
 import OpenGames.Engine.Engine (Agent)
 
+-- Basic types
+
 type PrivateValue = Double        -- The private valuation that a player has
 
 type BidValue = Double            -- The public valuation that the player bids
@@ -11,8 +13,9 @@ type ReservePrice = BidValue      -- The minimum price that the seller would acc
 
 type WinningBidValue = BidValue   -- The value of the winning bid
 
-type Bid = (Agent, BidValue)
+-- Simultaneous bids
 
+type Bid = (Agent, BidValue)
 type Relay = [Bid]                -- At this stage a Relay is just a list of bids
 
 type AuctionOutcome = (Agent, BidValue, BlockWon) 
@@ -41,3 +44,10 @@ data Parameters = Parameters
   , winningPrice :: WinningPrice
   , approxError  :: Double
   } deriving (Show)
+
+
+-- Dynamic Auctions
+type BidJapaneseAuction = (Agent,Bool)
+
+data AuctionTerminated = Terminated | OnGoing BidValue
+  deriving (Show,Ord,Eq)

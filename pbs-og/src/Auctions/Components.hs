@@ -15,6 +15,10 @@ import OpenGames.Preprocessor
 
 ---------------
 -- 1 Components
+---------------
+
+----------
+-- Bidding
 
 -- Draws a value and creates a pair of _value_ _name_
 natureDrawsTypeStage name valueSpace = [opengame|
@@ -52,7 +56,29 @@ biddingStage name actionSpace approxError = [opengame|
     returns   :  payments  ;
   |]
 
+-- Individual bidding stage for dynamic auction format
+biddingStageDynamic name actionSpace approxError = [opengame|
 
+    inputs    :  state, ownBidding, nameValuePair  ;
+    feedback  :   ;
+
+    :---------------------------:
+    inputs    :  state, ownBidding, nameValuePair  ;
+    feedback  :   ;
+    operation :  dependentEpsilonDecision approxError name actionSpace ;
+    outputs   :  bid ;
+    returns   :  0  ;
+    // Payments are determined at the terminal stage
+    :---------------------------:
+
+    outputs   :  bid ;
+    returns   :  ;
+  |]
+
+  
+-----------
+-- Payments
+  
 -- Transforms the bids and the relevant reservePrice into the payments by players
 transformPaymentsReservePrice winningPrice  = [opengame|
 
