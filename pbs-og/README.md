@@ -78,7 +78,7 @@ Since under the hood games are nothing more than functions, REPL allows us to se
 This tool is expecially powerful to better understand the structure of the strategies we have to feed to the model, which can grow very complicated as the model scales.
 
 ## Addendum: Installing haskell
-If you dont' have either `haskell` or `stack`, it is necessary to install them. there are many ways to do so; on Linux/macOS systems, we suggest using [ghcup](https://www.haskell.org/ghcup/).
+If you dont' have either `haskell` or `stack`, it is necessary to install them. There are many ways to do so; on Linux/macOS systems, we suggest using [ghcup](https://www.haskell.org/ghcup/).
 In a terminal, type:
 
 ```sh
