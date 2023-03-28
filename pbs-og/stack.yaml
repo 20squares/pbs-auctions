@@ -37,7 +37,7 @@ packages:
 #
 extra-deps:
  - git: https://github.com/philipp-zahn/open-games-engine.git
-   commit: 1eceb14853a8a857b99a1c5971d9e636dba48327
+   commit: 7bb9aa8d29ae2fac8bd2823ebb86117dbc967431
 #
 # extra-deps: []
 

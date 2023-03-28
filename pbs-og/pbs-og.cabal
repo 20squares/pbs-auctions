@@ -41,6 +41,7 @@ library
   build-depends:
       base >=4.7 && <5
     , containers
+    , mtl
     , open-games-hs
     , probability
   default-language: Haskell2010
@@ -55,6 +56,7 @@ executable pbs-og-exe
   build-depends:
       base >=4.7 && <5
     , containers
+    , mtl
     , open-games-hs
     , pbs-og
     , probability
@@ -73,6 +75,7 @@ test-suite pbs-og-test
       base >=4.7 && <5
     , containers
     , hspec
+    , mtl
     , open-games-hs
     , pbs-og
     , probability

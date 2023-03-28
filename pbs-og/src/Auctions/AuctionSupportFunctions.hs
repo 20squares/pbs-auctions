@@ -4,6 +4,7 @@ import Auctions.Types
 
 import OpenGames.Engine.Engine (Agent,Stochastic,uniformDist,pureAction,playDeterministically)
 
+import Control.Monad (join)
 import Data.List (maximumBy, sortBy, permutations)
 import qualified Data.Map.Strict as M
 import Data.Ord (comparing)
@@ -159,14 +160,21 @@ computeOutcomeFunction (agent,bid) ls =
 -- Dynamic auctions
 -------------------
 
-terminationRuleJapaneseAuction :: [BidJapaneseAuction] -> BidValue -> BidValue -> AuctionTerminated 
-terminationRuleJapaneseAuction ls currentValue increaseBid =
-  if [x | (n,x) <- ls, x == True] == []
-     then Terminated
-     else OnGoing (currentValue + increaseBid)
+-- Determine if game has ended, if not update current bid
+terminationRuleJapaneseAuction
+  :: BidValue
+  -> ([BidJapaneseAuction], BidValue,(PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue),(Bool,Bool,Bool,Bool))
+  -> Either
+        ([BidJapaneseAuction], BidValue,PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue)
+        (BidValue,PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue, Bool,Bool,Bool,Bool)
+terminationRuleJapaneseAuction increaseBidPerRound (bids,currentBid,(nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4),(bidOld1, bidOld2, bidOld3, bidOld4)) =
+  if [x | (n,x) <- bids, x == True] == []
+     then Left (bids,currentBid, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4)
+     else Right (currentBid + increaseBidPerRound, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4,bidOld1, bidOld2, bidOld3, bidOld4)
 
-winnerJapaneseAuction :: [BidJapaneseAuction] -> BidValue -> Stochastic [AuctionOutcome]
-winnerJapaneseAuction bids currentValue =
+-- In case of the japanese auction compute payments
+japaneseAuctionPayments :: [BidJapaneseAuction] -> BidValue -> Stochastic [AuctionOutcome]
+japaneseAuctionPayments bids currentValue =
   let winnersOnly = filter (\(_,bidding) -> bidding == True) bids
       in case length winnersOnly of
             1 -> playDeterministically $ fmap (generatePayment currentValue) bids
@@ -179,7 +187,13 @@ winnerJapaneseAuction bids currentValue =
              then (n,-v,True)
              else (n,0,False)
 
-----------------------------------------------------
+-- Helper function to unify the branching output
+unifyEmptyBranching :: Either () (Either () a) -> Either () a
+unifyEmptyBranching = join 
+
+
+
+---------------------------------------------------
 -- EXPERIMENTAL Additional functionality for hierarchical auctions
 ----------------------------------------------------
 

@@ -1,3 +1,5 @@
+{-# LANGUAGE DuplicateRecordFields #-}
+
 module Auctions.Types
   where
 
@@ -6,6 +8,8 @@ import OpenGames.Engine.Engine (Agent)
 -- Basic types
 
 type PrivateValue = Double        -- The private valuation that a player has
+
+type PrivateNameValue = (Agent,PrivateValue)        -- The private valuation that a player has
 
 type BidValue = Double            -- The public valuation that the player bids
 
@@ -45,9 +49,28 @@ data Parameters = Parameters
   , approxError  :: Double
   } deriving (Show)
 
+-------------------------
+-- Dynamic Auctions types
 
--- Dynamic Auctions
+-- Stay in the auction or leave
 type BidJapaneseAuction = (Agent,Bool)
 
-data AuctionTerminated = Terminated | OnGoing BidValue
-  deriving (Show,Ord,Eq)
+type BidsJapaneseAuction =[BidJapaneseAuction]
+
+data ParametersJapaneseAuction = ParametersJapaneseAuction
+  { name1 :: Agent
+  , name2 :: Agent
+  , name3 :: Agent
+  , name4 :: Agent
+  , valueSpace1 :: [PrivateValue]
+  , valueSpace2 :: [PrivateValue]
+  , valueSpace3 :: [PrivateValue]
+  , valueSpace4 :: [PrivateValue]
+  , actionSpace1 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
+  , actionSpace2 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
+  , actionSpace3 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
+  , actionSpace4 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
+  , approxError  :: Double
+  , increasePerRound :: Double
+  } 
+

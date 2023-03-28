@@ -5,16 +5,20 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
 module Auctions.Analytics
    where
 
+import Auctions.AuctionSupportFunctions
 import Auctions.Model
 import Auctions.Types
 
 import OpenGames.Engine.Engine hiding (Payoff)
 import OpenGames.Preprocessor
 
+
+import qualified Control.Monad.State  as ST
 import qualified Numeric.Probability.Distribution as P
 
 {-
@@ -79,3 +83,36 @@ printSimulationSimultaneousBidAuction parameters strategy = formExpectedPayment 
 simulateAllPayAuction Parameters{..} strategy = play (biddingAllPay  name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError) strategy
 
 printSimulationAllPayAuction parameters strategy = formExpectedPayment $ nextState (simulateAllPayAuction parameters strategy) ()
+
+
+---------------------
+-- 3 Dynamic auctions
+---------------------
+
+----------------------------------
+-- Preparing Markov game structure
+
+-- Determine continuation payoff with the same repeated strategy
+determineContinuationPayoffs par 1        strat action = pure ()
+determineContinuationPayoffs par iterator strat action = do
+   nextContinuation executeStrat action
+   nextInput <- ST.lift $ nextState executeStrat action
+   determineContinuationPayoffs par  (pred iterator) strat nextInput
+ where
+   executeStrat =  play (game par) strat
+   game par  = fullStateGame par.name1 par.name2 par.name3 par.name4 par.valueSpace1 par.valueSpace2 par.valueSpace3 par.valueSpace4 par.actionSpace1 par.actionSpace2 par.actionSpace3 par.actionSpace4 par.approxError par.increasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
+
+
+
+-- Context used for the evaluation of the current stage game 
+contextCont game iterator strat initialAction = StochasticStatefulContext (pure ((),initialAction)) (\_ action -> determineContinuationPayoffs game iterator strat action)
+
+--------------
+-- Equilibrium
+
+-- Define eq of repeated game
+repeatedStageGameEq game iterator strat initialAction = evaluate game strat context
+  where context  = contextCont game iterator strat initialAction
+
+-- Show equilibrium output
+printEquilibriumDynamicAuction game iterator strat initialAction = generateIsEq $ repeatedStageGameEq game iterator strat initialAction

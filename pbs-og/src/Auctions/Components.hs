@@ -75,7 +75,7 @@ biddingStageDynamic name actionSpace approxError = [opengame|
     returns   :  ;
   |]
 
-  
+
 -----------
 -- Payments
   
@@ -208,7 +208,7 @@ determinePayoffs name = [opengame|
 
   |]
 
- -- Given the bids, and the proposer's choice, determine outcome 
+-- Given the bids, and the proposer's choice, determine outcome 
 computeOutcomes  = [opengame|
 
    inputs    : winningBid, bids ;
@@ -225,5 +225,53 @@ computeOutcomes  = [opengame|
    outputs   : paymentsBidders ;
    returns   :      ;
 
+  |]
+
+-------------------
+-- Dynamic auctions
+-------------------
+
+-- Check if game is finished, if so determine payoffs
+-- Given the bids, and the proposer's choice, determine outcome 
+updateOrTerminateAuction increasePerRound terminationRuleAuction = [opengame|
+
+   inputs    : bidLs, state, valuePairs, bids  ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    : bidLs, state, valuePairs, bids ;
+   feedback  :      ;
+   operation : forwardFunction $ terminationRuleAuction increasePerRound;
+   outputs   : endedOrNextState ;
+   returns   :      ;
+   :-----------------:
+
+   outputs   : endedOrNextState ;
+   returns   :      ;
+
+  |]
+
+-- If the game ended; assign payments
+transformPaymentsDynamicAuction paymentRule  = [opengame|
+
+   inputs    : bids, state ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    : bids, state ;
+   feedback  :      ;
+   operation : forwardFunction $ uncurry $ paymentRule ;
+   outputs   : paymentsLottery ;
+   returns   :      ;
+
+   inputs    : paymentsLottery ;
+   feedback  :      ;
+   operation : natureEndInput ;
+   outputs   : payments ;
+   returns   :      ;
+   :-----------------:
+
+   outputs   : payments ;
+   returns   :      ;
   |]
 
