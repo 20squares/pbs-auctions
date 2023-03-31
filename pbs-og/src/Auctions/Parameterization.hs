@@ -123,4 +123,4 @@ initialAction
        a1
        (BidsJapaneseAuction, BidsJapaneseAuction, BidValue, PrivateNameValue, PrivateNameValue,
         PrivateNameValue, PrivateNameValue, Bool, Bool, Bool, Bool)
-initialAction = Right ([("bidder1",True),("bidder2",True),("bidder3",True),("bidder4",True)],[("bidder1",True),("bidder2",True),("bidder3",True),("bidder4",True)],1,("bidder1",5),("bidder2",5),("bidder3",7),("bidder4",10),True,True,True,True)
+initialAction = Right ([("bidder1",False),("bidder2",False),("bidder3",False),("bidder4",True)],[("bidder1",False),("bidder2",False),("bidder3",False),("bidder4",True)],7,("bidder1",5),("bidder2",5),("bidder3",7),("bidder4",10),True,True,True,True)

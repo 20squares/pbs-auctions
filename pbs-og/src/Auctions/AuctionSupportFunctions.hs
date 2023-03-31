@@ -168,9 +168,13 @@ terminationRuleJapaneseAuction
         ([BidJapaneseAuction], BidValue,PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue)
         ([BidJapaneseAuction],BidValue,PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue, Bool,Bool,Bool,Bool)
 terminationRuleJapaneseAuction increaseBidPerRound (bidsOld,bids,currentBid,(nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4),(bid1, bid, bid3, bid4)) =
-    if [x | (_,x) <- bids, x == True] == []
-      then Left (bidsOld,currentBid, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4)
-      else Right (bids,currentBid + increaseBidPerRound, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4,bid1, bid, bid3, bid4)
+    case length  [x | (_,x) <- bids, x == True] of
+      0 -> Left (bidsOld,currentBid, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4)
+      -- ^ All the leading bidders dropped out at once; end the auction; use the bids from last round
+      1 -> Left (bids,currentBid, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4)
+      -- ^ Only one bidder left; end the auction; use the current bid to determine the winner
+      _ -> Right (bids,currentBid + increaseBidPerRound, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4,bid1, bid, bid3, bid4)
+      -- ^ Still more than two bidders active; keep the auction running
 
 -- In case of the japanese auction compute payments
 japaneseAuctionPayments :: [BidJapaneseAuction] -> BidValue -> Stochastic [AuctionOutcome]
@@ -184,7 +188,7 @@ japaneseAuctionPayments bids currentValue =
                  playDeterministically outcomes'
   where generatePayment v (n,bidding) =
           if bidding == True
-             then (n,-v,True)
+             then (n,v,True)
              else (n,0,False)
 
 -- Helper function to unify the branching output

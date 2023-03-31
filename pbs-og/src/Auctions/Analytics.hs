@@ -117,7 +117,6 @@ repeatedStageGameEq par iterator strat initialAction = evaluate (game par) strat
     context  = contextCont par iterator strat initialAction
     game ParametersJapaneseAuction{..}  = fullStateGame jname1 jname2 jname3 jname4 jvalueSpace1 jvalueSpace2 jvalueSpace3 jvalueSpace4 jactionSpace1 jactionSpace2 jactionSpace3 jactionSpace4 japproxError jincreasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
 
-
 -- Show equilibrium output
 printEquilibriumDynamicAuction par iterator strat initialAction = do
   let bidder1 ::- bidder2 ::- bidder3 ::- bidder4 ::- Nil = repeatedStageGameEq par iterator strat initialAction
@@ -130,6 +129,21 @@ printEquilibriumDynamicAuction par iterator strat initialAction = do
   putStrLn "Bidder4: "
   putStrLn $ checkEqMaybe2L bidder4
 
+-- Show full output
+printOutputDynamicAuction par iterator strat initialAction = do
+  let bidder1 ::- bidder2 ::- bidder3 ::- bidder4 ::- Nil = repeatedStageGameEq par iterator strat initialAction
+  putStrLn "Bidder1: "
+  putStrLn $ showDiagnosticInfoMaybe2L bidder1
+  putStrLn "Bidder2: "
+  putStrLn $ showDiagnosticInfoMaybe2L bidder2
+  putStrLn "Bidder3: "
+  putStrLn $ showDiagnosticInfoMaybe2L bidder3
+  putStrLn "Bidder4: "
+  putStrLn $ showDiagnosticInfoMaybe2L bidder4
+
+
+
+-- Run step-wise simulation
 simulateRepeatedStageGame par iterator strat = play (game par) strat 
   where
     game ParametersJapaneseAuction{..}  = fullStateGame jname1 jname2 jname3 jname4 jvalueSpace1 jvalueSpace2 jvalueSpace3 jvalueSpace4 jactionSpace1 jactionSpace2 jactionSpace3 jactionSpace4 japproxError jincreasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
