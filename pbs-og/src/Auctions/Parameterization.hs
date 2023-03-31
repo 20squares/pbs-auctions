@@ -114,7 +114,7 @@ parametersJapaneseAuction = ParametersJapaneseAuction
   , jactionSpace2 = boolLs
   , jactionSpace3 = boolLs
   , jactionSpace4 = boolLs
-  , japproxError  = undefined 
+  , japproxError  = 0.2
   , jincreasePerRound = 1
   } 
 
