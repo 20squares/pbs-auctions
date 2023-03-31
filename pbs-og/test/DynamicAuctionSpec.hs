@@ -21,6 +21,7 @@ spec = do
 
  -- test variables
 -- test bids
+testBids0 = [("bidder1",True),("bidder2",True), ("bidder3",False),("bidder4",False)]
 testBids1 = [("bidder1",True),("bidder2",False), ("bidder3",False),("bidder4",False)]
 testBids2 = [("bidder1",False),("bidder2",False), ("bidder3",False),("bidder4",False)]
 
@@ -31,8 +32,8 @@ privateValues = (("bidder1",10),("bidder2",9), ("bidder3",8),("bidder4",7))
 -- Last bid behavior in t-1
 lastBid = (True,False,False,False)
   
-testInitialCondition1 = (testBids1,10,privateValues,lastBid)
-testInitialCondition2 = (testBids2,10,privateValues,lastBid)
+testInitialCondition1 = (testBids0,testBids1,10,privateValues,lastBid)
+testInitialCondition2 = (testBids1, testBids2,10,privateValues,lastBid)
 
 -- Tests
 terminationRuleJapaneseAuctionTest = describe
@@ -40,19 +41,9 @@ terminationRuleJapaneseAuctionTest = describe
      it "correctly continued" $ do
        shouldBe
          (terminationRuleJapaneseAuction 1 testInitialCondition1)
-         (Right (11,("bidder1",10),("bidder2",9), ("bidder3",8),("bidder4",7), True,False,False,False))
+         (Right (testBids1, 11,("bidder1",10),("bidder2",9), ("bidder3",8),("bidder4",7), True,False,False,False))
      it "correctly stops" $ do
        shouldBe
          (terminationRuleJapaneseAuction 1 testInitialCondition2)
-         (Left (testBids2,10,("bidder1",10),("bidder2",9), ("bidder3",8),("bidder4",7)))
+         (Left (testBids1,10,("bidder1",10),("bidder2",9), ("bidder3",8),("bidder4",7)))
 
-japaneseAuctionPaymentsTest = describe
-   "Stop auction" $ do
-     it "correctly continued" $ do
-       shouldBe
-         (terminationRuleJapaneseAuction 1 testInitialCondition1)
-         (Right (11,("bidder1",10),("bidder2",9), ("bidder3",8),("bidder4",7), True,False,False,False))
-     it "correctly stops" $ do
-       shouldBe
-         (terminationRuleJapaneseAuction 1 testInitialCondition2)
-         (Left (testBids2,10,("bidder1",10),("bidder2",9), ("bidder3",8),("bidder4",7)))
