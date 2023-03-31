@@ -1,9 +1,11 @@
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE PolyKinds #-}
 
 module Auctions.Types
   where
 
 import OpenGames.Engine.Engine (Agent)
+import GHC.Records (HasField)
 
 -- Basic types
 
@@ -58,19 +60,19 @@ type BidJapaneseAuction = (Agent,Bool)
 type BidsJapaneseAuction =[BidJapaneseAuction]
 
 data ParametersJapaneseAuction = ParametersJapaneseAuction
-  { name1 :: Agent
-  , name2 :: Agent
-  , name3 :: Agent
-  , name4 :: Agent
-  , valueSpace1 :: [PrivateValue]
-  , valueSpace2 :: [PrivateValue]
-  , valueSpace3 :: [PrivateValue]
-  , valueSpace4 :: [PrivateValue]
-  , actionSpace1 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
-  , actionSpace2 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
-  , actionSpace3 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
-  , actionSpace4 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
-  , approxError  :: Double
-  , increasePerRound :: Double
-  } 
+  { jname1 :: Agent
+  , jname2 :: Agent
+  , jname3 :: Agent
+  , jname4 :: Agent
+  , jvalueSpace1 :: [PrivateValue]
+  , jvalueSpace2 :: [PrivateValue]
+  , jvalueSpace3 :: [PrivateValue]
+  , jvalueSpace4 :: [PrivateValue]
+  , jactionSpace1 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
+  , jactionSpace2 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
+  , jactionSpace3 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
+  , jactionSpace4 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
+  , japproxError  :: Double
+  , jincreasePerRound :: Double
+  }  
 

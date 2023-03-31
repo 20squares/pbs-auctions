@@ -88,7 +88,7 @@ findMaxBidRelayTest = describe
      it "correct bid - 1" $ do
        shouldBe
          (findMaxBidRelay testBids1)
-         ("bidder1",20)
+         (playDeterministically ("bidder1",20))
 
 computeOutcomeFunctionTest = describe
    "compute outcomes" $ do

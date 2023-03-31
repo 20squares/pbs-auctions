@@ -163,14 +163,14 @@ computeOutcomeFunction (agent,bid) ls =
 -- Determine if game has ended, if not update current bid
 terminationRuleJapaneseAuction
   :: BidValue
-  -> ([BidJapaneseAuction], BidValue,(PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue),(Bool,Bool,Bool,Bool))
+  -> ([BidJapaneseAuction],[BidJapaneseAuction], BidValue,(PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue),(Bool,Bool,Bool,Bool))
   -> Either
         ([BidJapaneseAuction], BidValue,PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue)
-        (BidValue,PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue, Bool,Bool,Bool,Bool)
-terminationRuleJapaneseAuction increaseBidPerRound (bids,currentBid,(nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4),(bidOld1, bidOld2, bidOld3, bidOld4)) =
-  if [x | (n,x) <- bids, x == True] == []
-     then Left (bids,currentBid, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4)
-     else Right (currentBid + increaseBidPerRound, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4,bidOld1, bidOld2, bidOld3, bidOld4)
+        ([BidJapaneseAuction],BidValue,PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue, Bool,Bool,Bool,Bool)
+terminationRuleJapaneseAuction increaseBidPerRound (bidsOld,bids,currentBid,(nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4),(bid1, bid, bid3, bid4)) =
+    if [x | (_,x) <- bids, x == True] == []
+      then Left (bidsOld,currentBid, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4)
+      else Right (bids,currentBid + increaseBidPerRound, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4,bid1, bid, bid3, bid4)
 
 -- In case of the japanese auction compute payments
 japaneseAuctionPayments :: [BidJapaneseAuction] -> BidValue -> Stochastic [AuctionOutcome]
@@ -188,7 +188,7 @@ japaneseAuctionPayments bids currentValue =
              else (n,0,False)
 
 -- Helper function to unify the branching output
-unifyEmptyBranching :: Either () (Either () a) -> Either () a
+unifyEmptyBranching :: Either a (Either a b) -> Either a b
 unifyEmptyBranching = join 
 
 

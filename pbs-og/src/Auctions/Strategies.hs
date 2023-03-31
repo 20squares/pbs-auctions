@@ -12,6 +12,7 @@ import OpenGames.Engine.Engine
 
 import Data.List (maximumBy)
 import Data.Ord (comparing)
+import Data.Bool (Bool(True))
 
 {-
 Defines the strategies
@@ -109,3 +110,28 @@ allPayAuctionStrategyTuple  =
   ::- bidAllPay
   ::- Nil
 
+---------------------
+-- Dynamic strategies
+
+-- | Truth telling strategy
+-- Restrict the strategy space
+participateBelowPriceStrategy
+  :: Kleisli
+       Stochastic
+       (BidValue,Bool,PrivateNameValue)
+       Bool
+participateBelowPriceStrategy =
+  Kleisli
+    (\(value,bool,(_,privateValue)) ->
+       case bool of
+         False -> playDeterministically False
+         True  -> case value < privateValue of
+           True  -> playDeterministically True
+           False -> playDeterministically False)
+
+japaneseAuctionStrategyTuple =
+      participateBelowPriceStrategy
+  ::- participateBelowPriceStrategy
+  ::- participateBelowPriceStrategy
+  ::- participateBelowPriceStrategy
+  ::- Nil 

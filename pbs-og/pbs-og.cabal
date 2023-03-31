@@ -28,6 +28,7 @@ library
       Auctions.Analytics
       Auctions.AuctionSupportFunctions
       Auctions.Components
+      Auctions.Diagnostics
       Auctions.Model
       Auctions.NestedAuctions
       Auctions.Parameterization
@@ -67,6 +68,7 @@ test-suite pbs-og-test
   main-is: Spec.hs
   other-modules:
       AuctionSupportFunctionsSpec
+      DynamicAuctionSpec
       Paths_pbs_og
   hs-source-dirs:
       test

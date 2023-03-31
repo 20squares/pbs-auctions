@@ -1,4 +1,5 @@
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE PolyKinds #-}
 
 module Auctions.Parameterization
   where
@@ -16,7 +17,9 @@ Defines the main parameterizations used in the analysis
 zeroReservePrice = 0
 
 privateValueLS = [0,3..9]
-actionLS = [0,1..10] 
+actionLS = [0,1..10]
+
+boolLs = const [True,False]
 
 -- Current relay auction
 parametersCurrentAuction = Parameters
@@ -97,3 +100,27 @@ parametersAllPayAuction = Parameters
   , winningPrice = undefined
   , approxError = 0.4
   }
+
+parametersJapaneseAuction = ParametersJapaneseAuction
+  { jname1 = "bidder1"
+  , jname2 = "bidder2"
+  , jname3 = "bidder3"
+  , jname4 = "bidder4"
+  , jvalueSpace1 = privateValueLS
+  , jvalueSpace2 = privateValueLS
+  , jvalueSpace3 = privateValueLS
+  , jvalueSpace4 = privateValueLS
+  , jactionSpace1 = boolLs 
+  , jactionSpace2 = boolLs
+  , jactionSpace3 = boolLs
+  , jactionSpace4 = boolLs
+  , japproxError  = undefined 
+  , jincreasePerRound = 1
+  } 
+
+initialAction
+  :: Either
+       a1
+       (BidsJapaneseAuction, BidsJapaneseAuction, BidValue, PrivateNameValue, PrivateNameValue,
+        PrivateNameValue, PrivateNameValue, Bool, Bool, Bool, Bool)
+initialAction = Right ([("bidder1",True),("bidder2",True),("bidder3",True),("bidder4",True)],[("bidder1",True),("bidder2",True),("bidder3",True),("bidder4",True)],1,("bidder1",5),("bidder2",5),("bidder3",7),("bidder4",10),True,True,True,True)

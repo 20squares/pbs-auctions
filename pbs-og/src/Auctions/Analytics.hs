@@ -5,12 +5,13 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Auctions.Analytics
    where
 
 import Auctions.AuctionSupportFunctions
+import Auctions.Diagnostics
 import Auctions.Model
 import Auctions.Types
 
@@ -100,19 +101,32 @@ determineContinuationPayoffs par iterator strat action = do
    determineContinuationPayoffs par  (pred iterator) strat nextInput
  where
    executeStrat =  play (game par) strat
-   game par  = fullStateGame par.name1 par.name2 par.name3 par.name4 par.valueSpace1 par.valueSpace2 par.valueSpace3 par.valueSpace4 par.actionSpace1 par.actionSpace2 par.actionSpace3 par.actionSpace4 par.approxError par.increasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
-
-
+   game ParametersJapaneseAuction{..}  = fullStateGame jname1 jname2 jname3 jname4 jvalueSpace1 jvalueSpace2 jvalueSpace3 jvalueSpace4 jactionSpace1 jactionSpace2 jactionSpace3 jactionSpace4 japproxError jincreasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
 
 -- Context used for the evaluation of the current stage game 
-contextCont game iterator strat initialAction = StochasticStatefulContext (pure ((),initialAction)) (\_ action -> determineContinuationPayoffs game iterator strat action)
+contextCont par iterator strat initialAction = StochasticStatefulContext (pure ((),initialAction)) (\_ action -> determineContinuationPayoffs par iterator strat action)
+  where
+   game ParametersJapaneseAuction{..}  = fullStateGame jname1 jname2 jname3 jname4 jvalueSpace1 jvalueSpace2 jvalueSpace3 jvalueSpace4 jactionSpace1 jactionSpace2 jactionSpace3 jactionSpace4 japproxError jincreasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
 
 --------------
 -- Equilibrium
 
 -- Define eq of repeated game
-repeatedStageGameEq game iterator strat initialAction = evaluate game strat context
-  where context  = contextCont game iterator strat initialAction
+repeatedStageGameEq par iterator strat initialAction = evaluate (game par) strat context
+  where
+    context  = contextCont par iterator strat initialAction
+    game ParametersJapaneseAuction{..}  = fullStateGame jname1 jname2 jname3 jname4 jvalueSpace1 jvalueSpace2 jvalueSpace3 jvalueSpace4 jactionSpace1 jactionSpace2 jactionSpace3 jactionSpace4 japproxError jincreasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
+
 
 -- Show equilibrium output
-printEquilibriumDynamicAuction game iterator strat initialAction = generateIsEq $ repeatedStageGameEq game iterator strat initialAction
+printEquilibriumDynamicAuction par iterator strat initialAction = do
+  let bidder1 ::- bidder2 ::- bidder3 ::- bidder4 ::- Nil = repeatedStageGameEq par iterator strat initialAction
+  putStrLn "Bidder1: "
+  putStrLn $ checkEqMaybe2L bidder1
+  putStrLn "Bidder2: "
+  putStrLn $ checkEqMaybe2L bidder2
+  putStrLn "Bidder3: "
+  putStrLn $ checkEqMaybe2L bidder3
+  putStrLn "Bidder4: "
+  putStrLn $ checkEqMaybe2L bidder4
+

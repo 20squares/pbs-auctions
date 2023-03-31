@@ -235,11 +235,11 @@ computeOutcomes  = [opengame|
 -- Given the bids, and the proposer's choice, determine outcome 
 updateOrTerminateAuction increasePerRound terminationRuleAuction = [opengame|
 
-   inputs    : bidLs, state, valuePairs, bids  ;
+   inputs    : bidsLsOld,bidLs, state, valuePairs, bids  ;
    feedback  :      ;
 
    :-----------------:
-   inputs    : bidLs, state, valuePairs, bids ;
+   inputs    : bidsLsOld,bidLs, state, valuePairs, bids ;
    feedback  :      ;
    operation : forwardFunction $ terminationRuleAuction increasePerRound;
    outputs   : endedOrNextState ;

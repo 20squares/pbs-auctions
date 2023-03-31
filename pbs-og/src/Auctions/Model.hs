@@ -64,7 +64,7 @@ bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 approxErr
 
 
 biddersDynamic name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError = [opengame| 
-   inputs    :  state, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4, bidOld1, bidOld2, bidOld3, bidOld4   ;
+   inputs    :  bidsOld, state, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4, bidOld1, bidOld2, bidOld3, bidOld4   ;
    feedback  :      ;
 
    :-----------------:
@@ -97,7 +97,7 @@ biddersDynamic name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 value
 
    :-----------------:
 
-   outputs   :   [(name1,bid1),(name2,bid2),(name3,bid3),(name4,bid4)],state, nameValuePair1, nameValuePair2,nameValuePair3,nameValuePair4, bid1, bid2, bid3, bid4  ;
+   outputs   :   bidsOld, [(name1,bid1),(name2,bid2),(name3,bid3),(name4,bid4)],state, nameValuePair1, nameValuePair2,nameValuePair3,nameValuePair4, bid1, bid2, bid3, bid4  ;
    returns   :   ;
    |]
 
@@ -394,7 +394,7 @@ terminalGame  name1 name2 name3 name4 paymentRule = [opengame|
 
   :-----------------:
 
-   outputs   : ;
+   outputs   : payments ;
    returns   : ;
    |]
 
@@ -406,12 +406,12 @@ branchingAuction name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 val
 -- Combine the game into a state game which branches into an endstate or continues
 stateGame name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule = [opengame| 
 
-   inputs    : bids, state , nameValuePair1, nameValuePair2,nameValuePair3, nameValuePair4, bidOld1, bidOld2, bidOld3, bidOld4;
+   inputs    : bidsOld,bids, state , nameValuePair1, nameValuePair2,nameValuePair3, nameValuePair4, bid1, bid2, bid3, bid4;
    feedback  : ;
 
    :-----------------:
 
-   inputs    : bids, state, (nameValuePair1, nameValuePair2,nameValuePair3, nameValuePair4), (bidOld1, bidOld2, bidOld3, bidOld4) ;
+   inputs    : bidsOld, bids, state, (nameValuePair1, nameValuePair2,nameValuePair3, nameValuePair4), (bid1, bid2, bid3, bid4) ;
    feedback  :  ;
    operation : updateOrTerminateAuction increasePerRound terminationRuleAuction ;
    outputs   : endedOrNextState ;
@@ -429,7 +429,6 @@ stateGame name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace
    returns   : ;
    |]
 
-
 -- Markov state game that can get repeated; if the auction ends, we stay in the empty game; otherwise continue the auction
 fullStateGame name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule =
   [opengame| 
@@ -441,7 +440,7 @@ fullStateGame name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueS
 
    inputs    : stateOld ;
    feedback  :  ;
-   operation : emptyBranching name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule ;
+   operation : idBranching name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule ;
    outputs   : stateUpdated ;
    returns   :  ;
 
@@ -458,8 +457,8 @@ fullStateGame name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueS
    |]
   where
     -- Unify the output - either stuck in empty game or continue the game
-    emptyBranching name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule = emptyGame +++ stateGame name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule
+    idBranching name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule = idGame +++ stateGame name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule
     -- Helper to construct an empty game
-    emptyGame :: StochasticStatefulBayesianOpenGame '[] '[] () () () ()
-    emptyGame = fromFunctions id id
+    idGame :: StochasticStatefulBayesianOpenGame '[] '[] a () a ()
+    idGame = fromFunctions id id
 
