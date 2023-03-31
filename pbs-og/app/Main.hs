@@ -44,3 +44,5 @@ main = do
 --}
   putStrLn "~~~~~~~Equilibrium Dynamic Auction~~~~~~~"
   printEquilibriumDynamicAuction parametersJapaneseAuction 10 japaneseAuctionStrategyTuple initialAction
+  putStrLn "~~~~~~~Simulate Dynamic Auction~~~~~~~"
+  printSimulationRepeatedStageGame parametersJapaneseAuction 10 japaneseAuctionStrategyTuple initialAction

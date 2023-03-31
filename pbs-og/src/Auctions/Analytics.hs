@@ -130,3 +130,9 @@ printEquilibriumDynamicAuction par iterator strat initialAction = do
   putStrLn "Bidder4: "
   putStrLn $ checkEqMaybe2L bidder4
 
+simulateRepeatedStageGame par iterator strat = play (game par) strat 
+  where
+    game ParametersJapaneseAuction{..}  = fullStateGame jname1 jname2 jname3 jname4 jvalueSpace1 jvalueSpace2 jvalueSpace3 jvalueSpace4 jactionSpace1 jactionSpace2 jactionSpace3 jactionSpace4 japproxError jincreasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
+
+printSimulationRepeatedStageGame par iterator strat initialAction = print $ P.decons $ nextState (simulateRepeatedStageGame par iterator strat) initialAction
+
