@@ -161,12 +161,6 @@ computeOutcomeFunction (agent,bid) ls =
 -------------------
 
 -- Determine if game has ended, if not update current bid
-terminationRuleJapaneseAuction
-  :: BidValue
-  -> ([BidJapaneseAuction],[BidJapaneseAuction], BidValue,(PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue),(Bool,Bool,Bool,Bool))
-  -> Either
-        ([BidJapaneseAuction], BidValue,PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue)
-        ([BidJapaneseAuction],BidValue,PrivateNameValue,PrivateNameValue,PrivateNameValue,PrivateNameValue, Bool,Bool,Bool,Bool)
 terminationRuleJapaneseAuction increaseBidPerRound (bidsOld,bids,currentBid,(nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4),(bid1, bid, bid3, bid4)) =
     case length  [x | (_,x) <- bids, x == True] of
       0 -> Left (bidsOld,currentBid, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4)
@@ -194,6 +188,26 @@ japaneseAuctionPayments bids currentValue =
 -- Helper function to unify the branching output
 unifyEmptyBranching :: Either a (Either a b) -> Either a b
 unifyEmptyBranching = join 
+
+-- Create or copy private value
+createOrUpdatePrivateValue
+  :: [b]
+     -> a
+     -> Maybe (a, b)
+     -> Numeric.Probability.Distribution.T Double (Maybe (a, b))
+createOrUpdatePrivateValue valueSpace name x = 
+  case x of
+    Nothing -> do
+        value <- uniformDist valueSpace
+        return $ Just (name,value)
+    Just v  -> return $ Just v
+
+setPayoffMaybe :: Maybe (Agent, PrivateValue) -> [AuctionOutcome] -> Payoff
+setPayoffMaybe privateValue payments =
+  case privateValue of
+    Nothing           -> 0
+    Just (name,value) -> setPayoff (name,value) payments
+
 
 
 

@@ -231,6 +231,37 @@ computeOutcomes  = [opengame|
 -- Dynamic auctions
 -------------------
 
+-- Check if private information already exists; if not draw it; else use it
+
+determinePrivateValue name valueSpace = [opengame|
+
+   inputs    : nameValuePair  ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    : nameValuePair ;
+   feedback  :      ;
+   operation : forwardFunction $ createOrUpdatePrivateValue name valueSpace;
+   outputs   : nameValuePairUpdated ;
+   returns   :      ;
+
+   inputs    : nameValuePairUpdated ;
+   feedback  :      ;
+   operation : natureEndInput ;
+   outputs   : nameValuePairFinal ;
+   returns   :      ;
+
+
+
+   :-----------------:
+
+   outputs   : nameValuePairFinal ;
+   returns   :      ;
+
+  |]
+
+ 
+  
 -- Check if game is finished, if so determine payoffs
 -- Given the bids, and the proposer's choice, determine outcome 
 updateOrTerminateAuction increasePerRound terminationRuleAuction = [opengame|

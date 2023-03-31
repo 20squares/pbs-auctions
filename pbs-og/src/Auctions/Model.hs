@@ -68,36 +68,62 @@ biddersDynamic name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 value
    feedback  :      ;
 
    :-----------------:
-   
-   inputs    :  state, bidOld1, nameValuePair1    ;
+   inputs    :  nameValuePair1    ;
+   feedback  :      ;
+   operation :  determinePrivateValue name1 valueSpace1 ;
+   outputs   :  nameValuePairUpdated1 ;
+   returns   :   ;
+
+
+   inputs    :  state, bidOld1, nameValuePairUpdated1    ;
    feedback  :      ;
    operation :  biddingStageDynamic name1 actionSpace1 approxError ;
    outputs   :  bid1 ;
    returns   :   ;
 
-   inputs    :  state, bidOld2, nameValuePair2   ;
+   inputs    :  nameValuePair2    ;
+   feedback  :      ;
+   operation :  determinePrivateValue name2 valueSpace2 ;
+   outputs   :  nameValuePairUpdated2 ;
+   returns   :   ;
+
+
+   inputs    :  state, bidOld2, nameValuePairUpdated2    ;
    feedback  :      ;
    operation :  biddingStageDynamic name2 actionSpace2 approxError ;
    outputs   :  bid2 ;
-   returns   :  ;
+   returns   :   ;
 
-   inputs    :  state, bidOld3, nameValuePair3    ;
+   inputs    :  nameValuePair3    ;
+   feedback  :      ;
+   operation :  determinePrivateValue name3 valueSpace3 ;
+   outputs   :  nameValuePairUpdated3 ;
+   returns   :   ;
+
+
+   inputs    :  state, bidOld3, nameValuePairUpdated3    ;
    feedback  :      ;
    operation :  biddingStageDynamic name3 actionSpace3 approxError ;
    outputs   :  bid3 ;
    returns   :   ;
 
-   inputs    :  state, bidOld4, nameValuePair4   ;
+   inputs    :  nameValuePair4    ;
+   feedback  :      ;
+   operation :  determinePrivateValue name4 valueSpace4 ;
+   outputs   :  nameValuePairUpdated4 ;
+   returns   :   ;
+
+
+   inputs    :  state, bidOld4, nameValuePairUpdated4    ;
    feedback  :      ;
    operation :  biddingStageDynamic name4 actionSpace4 approxError ;
    outputs   :  bid4 ;
-   returns   :  ;
-
+   returns   :   ;
 
 
    :-----------------:
 
-   outputs   :   bidsOld, [(name1,bid1),(name2,bid2),(name3,bid3),(name4,bid4)],state, nameValuePair1, nameValuePair2,nameValuePair3,nameValuePair4, bid1, bid2, bid3, bid4  ;
+   outputs   :   bidsOld, [(name1,bid1),(name2,bid2),(name3,bid3),(name4,bid4)],state, nameValuePairUpdated1, nameValuePairUpdated2,nameValuePairUpdated3,nameValuePairUpdated4, bid1, bid2, bid3, bid4  ;
    returns   :   ;
    |]
 
@@ -319,7 +345,7 @@ payoffsDynamicAuction  name1 name2 name3 name4  = [opengame|
 
    inputs    :  nameValuePair1, payments;
    feedback  :  ;
-   operation : forwardFunction $ uncurry setPayoff ;
+   operation : forwardFunction $ uncurry setPayoffMaybe ;
    outputs   : payoff1 ;
    returns   :  ;
 
@@ -331,7 +357,7 @@ payoffsDynamicAuction  name1 name2 name3 name4  = [opengame|
 
    inputs    :  nameValuePair2, payments;
    feedback  :  ;
-   operation : forwardFunction $ uncurry setPayoff ;
+   operation : forwardFunction $ uncurry setPayoffMaybe ;
    outputs   : payoff2 ;
    returns   :  ;
 
@@ -343,7 +369,7 @@ payoffsDynamicAuction  name1 name2 name3 name4  = [opengame|
 
    inputs    :  nameValuePair3, payments;
    feedback  :  ;
-   operation : forwardFunction $ uncurry setPayoff ;
+   operation : forwardFunction $ uncurry setPayoffMaybe ;
    outputs   : payoff3 ;
    returns   :  ;
 
@@ -355,7 +381,7 @@ payoffsDynamicAuction  name1 name2 name3 name4  = [opengame|
 
    inputs    :  nameValuePair4, payments;
    feedback  :  ;
-   operation : forwardFunction $ uncurry setPayoff ;
+   operation : forwardFunction $ uncurry setPayoffMaybe ;
    outputs   : payoff4 ;
    returns   :  ;
 
