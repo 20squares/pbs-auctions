@@ -367,7 +367,7 @@ payoffsDynamicAuction  name1 name2 name3 name4  = [opengame|
 
    :-----------------:
 
-   outputs   : ;
+   outputs   : [payoff1,payoff2,payoff3,payoff4] ;
    returns   : ;
    |]
 
@@ -389,12 +389,12 @@ terminalGame  name1 name2 name3 name4 paymentRule = [opengame|
    inputs    : payments, nameValuePair1, nameValuePair2,nameValuePair3, nameValuePair4;
    feedback  :  ;
    operation : payoffsDynamicAuction  name1 name2 name3 name4 ;
-   outputs   :  ;
+   outputs   : payoffs ;
    returns   :  ;
 
   :-----------------:
 
-   outputs   : payments ;
+   outputs   : payoffs ;
    returns   : ;
    |]
 
