@@ -118,16 +118,20 @@ allPayAuctionStrategyTuple  =
 participateBelowPriceStrategy
   :: Kleisli
        Stochastic
-       (BidValue,Bool,PrivateNameValue)
+       (BidValue,Bool,Maybe PrivateNameValue)
        Bool
 participateBelowPriceStrategy =
   Kleisli
-    (\(value,bool,(_,privateValue)) ->
+    (\(value,bool,privateValueMaybe) ->
        case bool of
-         False -> playDeterministically False
-         True  -> case value < privateValue of
-           True  -> playDeterministically True
-           False -> playDeterministically False)
+         False ->
+           playDeterministically False
+         True  ->
+           case privateValueMaybe of
+             Nothing -> playDeterministically False
+             Just (_,privateValue) -> case value <=  privateValue of
+                True  -> playDeterministically True
+                False -> playDeterministically False)
 
 japaneseAuctionStrategyTuple =
       participateBelowPriceStrategy

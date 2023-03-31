@@ -65,7 +65,7 @@ biddingStageDynamic name actionSpace approxError = [opengame|
     :---------------------------:
     inputs    :  state, ownBidding, nameValuePair  ;
     feedback  :   ;
-    operation :  dependentEpsilonDecision approxError name actionSpace ;
+    operation :  dependentEpsilonDecision approxError name (const actionSpace) ;
     outputs   :  bid ;
     returns   :  0  ;
     // Payments are determined at the terminal stage
@@ -242,16 +242,20 @@ determinePrivateValue name valueSpace = [opengame|
    inputs    : nameValuePair ;
    feedback  :      ;
    operation : forwardFunction $ createOrUpdatePrivateValue name valueSpace;
-   outputs   : nameValuePairUpdated ;
+   outputs   : nameValuePairUpdated1 ;
    returns   :      ;
 
-   inputs    : nameValuePairUpdated ;
+   inputs    : nameValuePairUpdated1 ;
    feedback  :      ;
    operation : natureEndInput ;
-   outputs   : nameValuePairFinal ;
+   outputs   : nameValuePairUpdate2 ;
    returns   :      ;
 
-
+   inputs    : nameValuePairUpdate2 ;
+   feedback  :      ;
+   operation : forwardFunction embedMaybe ;
+   outputs   : nameValuePairFinal ;
+   returns   :      ;
 
    :-----------------:
 

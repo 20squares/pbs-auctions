@@ -1,5 +1,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE StandaloneDeriving #-}
+
 
 module Auctions.Types
   where
@@ -68,11 +70,17 @@ data ParametersJapaneseAuction = ParametersJapaneseAuction
   , jvalueSpace2 :: [PrivateValue]
   , jvalueSpace3 :: [PrivateValue]
   , jvalueSpace4 :: [PrivateValue]
-  , jactionSpace1 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
-  , jactionSpace2 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
-  , jactionSpace3 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
-  , jactionSpace4 :: (BidValue,Bool,PrivateNameValue) -> [Bool]
+  , jactionSpace1 :: [Bool]
+  , jactionSpace2 :: [Bool]
+  , jactionSpace3 :: [Bool]
+  , jactionSpace4 :: [Bool]
   , japproxError  :: Double
   , jincreasePerRound :: Double
-  }  
+  } deriving (Show) 
 
+deriving instance (Show a, Show b, Show c, Show d, Show e, Show f, Show g, Show h, Show i, Show j, Show k, Show l, Show m, Show n, Show o, Show p, Show q) => Show (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q)
+-- ^ Needed for the extended per period export
+
+
+deriving instance (Show a, Show b, Show c, Show d, Show e, Show f, Show g, Show h, Show i, Show j, Show k, Show l, Show m, Show n, Show o, Show p) => Show (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p)
+-- ^ Needed for the extended per period export

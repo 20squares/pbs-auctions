@@ -190,17 +190,15 @@ unifyEmptyBranching :: Either a (Either a b) -> Either a b
 unifyEmptyBranching = join 
 
 -- Create or copy private value
-createOrUpdatePrivateValue
-  :: [b]
-     -> a
-     -> Maybe (a, b)
-     -> Numeric.Probability.Distribution.T Double (Maybe (a, b))
-createOrUpdatePrivateValue valueSpace name x = 
+createOrUpdatePrivateValue name valueSpace x = 
   case x of
     Nothing -> do
-        value <- uniformDist valueSpace
-        return $ Just (name,value)
-    Just v  -> return $ Just v
+        v <- uniformDist valueSpace
+        playDeterministically (name,v)
+    Just v  -> playDeterministically v
+
+-- Embed value in Maybe
+embedMaybe x = Just x 
 
 setPayoffMaybe :: Maybe (Agent, PrivateValue) -> [AuctionOutcome] -> Payoff
 setPayoffMaybe privateValue payments =

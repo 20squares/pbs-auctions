@@ -16,10 +16,12 @@ Defines the main parameterizations used in the analysis
 
 zeroReservePrice = 0
 
+privateValueLS :: [PrivateValue]
 privateValueLS = [0,3..9]
+actionLS :: [BidValue]
 actionLS = [0,1..10]
 
-boolLs = const [True,False]
+boolLs = [True,False]
 
 -- Current relay auction
 parametersCurrentAuction = Parameters
@@ -121,7 +123,9 @@ parametersJapaneseAuction = ParametersJapaneseAuction
 
 initialAction
   :: Either
-       a1
-       (BidsJapaneseAuction, BidsJapaneseAuction, BidValue, PrivateNameValue, PrivateNameValue,
-        PrivateNameValue, PrivateNameValue, Bool, Bool, Bool, Bool)
-initialAction = Right ([("bidder1",True),("bidder2",True),("bidder3",True),("bidder4",True)],[("bidder1",False),("bidder2",False),("bidder3",True),("bidder4",True)],5,("bidder1",5),("bidder2",5),("bidder3",7),("bidder4",10),False,False,True,True)
+       a
+       ([(String, Bool)], [(String, Bool)], Double,
+        Maybe (String, Double), Maybe (String, Double),
+        Maybe (String, Double), Maybe (String, Double), Bool, Bool, Bool,
+        Bool)
+initialAction = Right ([("bidder1",True),("bidder2",True),("bidder3",True),("bidder4",True)],[("bidder1",False),("bidder2",False),("bidder3",True),("bidder4",True)],5,Just ("bidder1",5),Just ("bidder2",5),Just ("bidder3",7),Just ("bidder4",10),False,False,True,True)
