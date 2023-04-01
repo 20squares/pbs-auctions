@@ -114,8 +114,8 @@ Here, we give a more detailed explanation of what our model does.
 
 Our model is simple and comprises two different actors:
 
-- **Bidders**, which represent builders competing for blockspace. Each **Bidder** has a private valuation that is drawn from nature. This private valuation represents how much the **Bidder** thinks that the blockspace on auction 'is really worth'. The **Bidder** observes the private value and uses it to formulate a bid.
-- The **Proposer**, which observes the bids and awards the blockspace to a winning **Bidder**. Proposer is free to chose the auctioning procedure.
+- **Bidders**, which represent builders competing for blockspace. Each **Bidder** has a private valuation that is drawn from nature. This private valuation represents how much **Bidder** thinks that the blockspace on auction 'is really worth'. **Bidder** observes the private value and uses it to formulate a bid.
+- **Proposer**, which observes the bids and awards the blockspace to a winning **Bidder**. Proposer is free to chose the auctioning procedure.
 
 Moreover, we will sometimes make use of a third, non-strategic component, called **Relayer**: These are intermediate components that relay the bids to **Proposer**. A relayer observes bids from a subset of builders, and has to filter one **Bidder** from the subset, whose bid will be relayed to the **Proposer**. Each relayer is free to chose whatever procedure for the filtering. **Relayers** are not strategic actors, meaning that the selection they perform is completely mechanicistic.
 In practice, when **Relayers** are used we implement a *nested auction*, since **Bidders** have to first compete to be selected by their **Relayer**, and then have to compete to be selected by **Proposer**. 
