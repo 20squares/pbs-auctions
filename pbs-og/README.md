@@ -33,7 +33,7 @@ In this FRP we focused on modelling some of the thought experiments around Propo
 
 ## Analytics results
 
-The analytics results of this FRP aren't particularly surprising, as dominant strategies for n-th price auctions and many dynamic auctions are well-known. As such, we just implemented those. As such, we preferred to focus on simulations more than on equilibria. More details can be found in [Results](#results).
+The analytics results of this FRP aren't particularly surprising, as dominant strategies for n-th price auctions and many dynamic auctions are well-known. Hence, we preferred focusing on simulations more than on equilibria. More details can be found in [Results](#results).
 
 
 # Installation
