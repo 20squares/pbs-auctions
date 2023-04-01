@@ -135,7 +135,7 @@ In this model **Relayers** just pick the biggest big out of the subset they mana
 
 In the case named `Assembled auctions` instead there are:
 - Four **Bidders**;
-- One **Proposer**, which has no strategic content. **Proposer** here just runs an auction mecanicistically. We modelled different auction procedures for **Proposer**, namely:
+- One **Proposer**, which has no strategic content. **Proposer** here just runs an auction mechanically. We modelled different auction procedures for **Proposer**, namely:
 
 - First price auction, where the winning bid is the highest one. These auctions can have a reserve price, meaning that no **Bidder** wins the auction if the reserve price is not met. For now, we set this price to zero.
 - Second price auction, where the winning bid is the second highest one. Again, these auctions can have a reserve price, which we set to zero for now.
