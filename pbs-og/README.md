@@ -136,18 +136,16 @@ In this model **Relayers** just pick the biggest big out of the subset they mana
 In the case named `Assembled auctions` instead there are:
 - Four **Bidders**;
 - One **Proposer**, which has no strategic content. **Proposer** here just runs an auction mechanically. We modelled different auction procedures for **Proposer**, namely:
-
-- First price auction, where the winning bid is the highest one. These auctions can have a reserve price, meaning that no **Bidder** wins the auction if the reserve price is not met. For now, we set this price to zero.
-- Second price auction, where the winning bid is the second highest one. Again, these auctions can have a reserve price, which we set to zero for now.
-- All-pay auctions, where all **Bidders** pay, not just the winning one.
-
-Moreover, we also modelled *dynamic auctions*. These are auctions where the information available to players is constantly updated, and players can dynamically adapt their bidding strategy over time. In particular, we implemented `Japanese auctions`, which work as follows:
-- There is a ticker displaying the current price. This is the bid value 
-- The thicker goes up by a fixed amount at every interval.
-- Each time the ticker goes up, **Bidders** must decide if they want to leave the auction or not.
-- If at time $t$ all players have left the auction, then the players in the auction at time $t-1$ are the possibly winning bidders.
-- The winning **Bidder** is chosen randomly from the possible winning **Bidders**. In practice, this is implemented as a uniform probability distribution.
-- The winning **Bidder** has to pay the bid displayed at time $t$.
+  - First price auction, where the winning bid is the highest one. These auctions can have a reserve price, meaning that no **Bidder** wins the auction if the reserve price is not met. For now, we set this price to zero.
+  - Second price auction, where the winning bid is the second highest one. Again, these auctions can have a reserve price, which we set to zero for now.
+  - All-pay auctions, where all **Bidders** pay, not just the winning one.
+  - We also modelled *dynamic auctions*. These are auctions where the information available to players is constantly updated, and players can dynamically adapt their bidding strategy over time. In particular, we implemented `Japanese auctions`, which work as follows:
+    - There is a ticker displaying the current price. This is the bid value 
+    - The thicker goes up by a fixed amount at every interval.
+    - Each time the ticker goes up, **Bidders** must decide if they want to leave the auction or not.
+    - If at time $t$ all players have left the auction, then the players in the auction at time $t-1$ are the possibly winning bidders.
+    - The winning **Bidder** is chosen randomly from the possible winning **Bidders**. In practice, this is implemented as a uniform probability distribution.
+    - The winning **Bidder** has to pay the bid displayed at time $t$.
 
 ## Equilibrium Vs. Simulations
 
