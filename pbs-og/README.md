@@ -151,7 +151,7 @@ In the case named `Assembled auctions` instead there are:
 
 In this model, aside of equilibrium checking, we also provided simulation capabilities. This is defined in `Analytics.hs`, see [File structure](#file-structure) for more information. In a nutshell:
 
-- Equilibrium checking takes a strategy, computes payoffs, and search for any strategic deviation that would result in a better payoff for one of the players.
+- Equilibrium checking takes a strategy, computes payoffs, and searches for any strategic deviation that would result in a better payoff for one of the players.
 - Simulations just plays the strategy, without looking for profitable deviations.
 
 The reason why we deem simulations important in this framework is because they can be used to quickly check how profitable a given strategy is. Simulations are also computationally lightweight compared to equilibrium checking.
