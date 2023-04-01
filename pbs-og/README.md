@@ -8,6 +8,7 @@
 - [Explaining the model](#explaining-the-model)
     - [Equilibrium vs. Simulations](#equilibrium-vs-simulations)
     - [Approximate equilibrium](#approximate-equilibrium)
+    - [Markov games](#markov-games)
 - [Code deep dive](#code-deep-dive)
     - [Recap: DSL primer](#recap-dsl-primer)
         - [The building blocks](#the-building-blocks)
@@ -31,6 +32,8 @@
 In this FRP we focused on modelling some of the thought experiments around Proposer-Builder Separation (PBS). Essentially, we implemented a modular bidding game and experimented with different auction procedures.
 
 ## Analytics results
+
+The analytics results of this FRP aren't particularly surprising, as dominant strategies for n-th price auctions and many dynamic auctions are well-known. Hence, we preferred focusing on simulations more than on equilibria. More details can be found in [Results](#results).
 
 
 # Installation
@@ -78,6 +81,7 @@ Since under the hood games are nothing more than functions, REPL allows us to se
 This tool is expecially powerful to better understand the structure of the strategies we have to feed to the model, which can grow very complicated as the model scales.
 
 ## Addendum: Installing haskell
+
 If you dont' have either `haskell` or `stack`, it is necessary to install them. There are many ways to do so; on Linux/macOS systems, we suggest using [ghcup](https://www.haskell.org/ghcup/).
 In a terminal, type:
 
@@ -110,8 +114,8 @@ Here, we give a more detailed explanation of what our model does.
 
 Our model is simple and comprises two different actors:
 
-- **Bidders**, which represent builders competing for blockspace. Each **Bidder** has a private valuation that is drawn from nature. This private valuation represents how much the **Bidder** thinks that the blockspace on auction 'is really worth'. The **Bidder** observes the private value and uses it to formulate a bid.
-- The **Proposer**, which observes the bids and awards the blockspace to a winning **Bidder**. Proposer is free to chose the auctioning procedure.
+- **Bidders**, which represent builders competing for blockspace. Each **Bidder** has a private valuation that is drawn from nature. This private valuation represents how much **Bidder** thinks that the blockspace on auction 'is really worth'. **Bidder** observes the private value and uses it to formulate a bid.
+- **Proposer**, which observes the bids and awards the blockspace to a winning **Bidder**. Proposer is free to chose the auctioning procedure.
 
 Moreover, we will sometimes make use of a third, non-strategic component, called **Relayer**: These are intermediate components that relay the bids to **Proposer**. A relayer observes bids from a subset of builders, and has to filter one **Bidder** from the subset, whose bid will be relayed to the **Proposer**. Each relayer is free to chose whatever procedure for the filtering. **Relayers** are not strategic actors, meaning that the selection they perform is completely mechanicistic.
 In practice, when **Relayers** are used we implement a *nested auction*, since **Bidders** have to first compete to be selected by their **Relayer**, and then have to compete to be selected by **Proposer**. 
@@ -131,24 +135,38 @@ In this model **Relayers** just pick the biggest big out of the subset they mana
 
 In the case named `Assembled auctions` instead there are:
 - Four **Bidders**;
-- One **Proposer**, which has no strategic content. **Proposer** here just runs an auction mecanicistically. We modelled different auction procedures for **Proposer**, namely:
-
-- First price auction, where the winning bid is the highest one. These auctions can have a reserve price, meaning that no **Bidder** wins the auction if the reserve price is not met. For now, we set this price to zero.
-- Second price auction, where the winning bid is the second highest one. Again, these auctions can have a reserve price, which we set to zero for now.
-- All-pay auctions, where all **Bidders** pay, not just the winning one.
+- One **Proposer**, which has no strategic content. **Proposer** here just runs an auction mechanically. We modelled different auction procedures for **Proposer**, namely:
+  - First price auction, where the winning bid is the highest one. These auctions can have a reserve price, meaning that no **Bidder** wins the auction if the reserve price is not met. For now, we set this price to zero.
+  - Second price auction, where the winning bid is the second highest one. Again, these auctions can have a reserve price, which we set to zero for now.
+  - All-pay auctions, where all **Bidders** pay, not just the winning one.
+  - We also modelled *dynamic auctions*. These are auctions where the information available to players is constantly updated, and players can dynamically adapt their bidding strategy over time. In particular, we implemented `Japanese auctions`, which work as follows:
+    - There is a ticker displaying the current price. This is the bid value.
+    - The ticker goes up by a fixed amount at every interval.
+    - Each time the ticker goes up, **Bidders** must decide if they want to leave the auction or not.
+    - If at time $t$ all players have left the auction, then the players in the auction at time $t-1$ are the possibly winning bidders.
+    - The winning **Bidder** is chosen randomly from the possible winning bidders. In practice, this is implemented as a uniform probability distribution.
+    - The winning **Bidder** has to pay the bid displayed at time $t$.
 
 ## Equilibrium Vs. Simulations
 
 In this model, aside of equilibrium checking, we also provided simulation capabilities. This is defined in `Analytics.hs`, see [File structure](#file-structure) for more information. In a nutshell:
 
-- Equilibrium checking takes a strategy, computes payoffs, and search for any strategic deviation that would result in a better payoff for one of the players.
+- Equilibrium checking takes a strategy, computes payoffs, and searches for any strategic deviation that would result in a better payoff for one of the players.
 - Simulations just plays the strategy, without looking for profitable deviations.
 
 The reason why we deem simulations important in this framework is because they can be used to quickly check how profitable a given strategy is. Simulations are also computationally lightweight compared to equilibrium checking.
 
 ## Approximate equilibrium
 
-In some of the models we developed, such as the ones employing first price auctions, we adopted an approximate version of equilibrium, which discards profitable strategic deviations if profits are closer than a fixed $\epsilon$ to the current one. The reason for this is that some results around equilibria in auction theory depend on a hypothesis of continuity: Namely, it is postulated that some variables range within the real numbers. Computers force us to work in a discretized settings, the consequence being that this hypothesis cannot satisfied in our models. Approximate equilibria allow us to 'blur' the line between discrete and continuous, and to obtain results in line with the ones 'pen and paper' auction theory would predict.
+In some of the models we developed, such as the ones employing first price auctions, we adopted an approximate version of equilibrium, which discards profitable strategic deviations if profits are closer than a fixed $\epsilon$ to the current one. The reason for this is that some results around equilibria in auction theory depend on a hypothesis of continuity: Namely, it is postulated that some variables range within the real numbers. Computers force us to work in a discretized settings, the consequence being that this hypothesis cannot be satisfied in our model. Approximate equilibria allow us to 'blur' the line between discrete and continuous, and to obtain results in line with the ones 'pen and paper' auction theory would predict.
+
+## Markov games
+
+As explained in detail in [Stochasticity](#stochasticity), all of our games are by default Bayesian. This allows us to use mixed strategies and probabilistic reasoning out of the box. To implement dynamic auctions, we had to resort to something slightly more complicated, **Bayesian Markov games**. A Markov game is a repeated game where the information at round $n$ influences round $n+1$. To be more precise, at each round the game can evolve into multiple states. The evolution is modelled as a probabilistic transition function dependent on the state of the game at the previous round and on the strategies players played there. The reason why these games are called 'Markov' is because at round $n+1$ only what happens at round $n$ matters (players' strategies and game state), whereas all previous information is discarded.
+
+In a Markov game that is furthermore Bayesian, players can reason counterfactually at the strategic level, and we can consider mixed strategies at each round. So, whereas Bayesian games are probabilistic at the strategic level, Markov games are probabilistic at the level of game state evolution. For these reasons the two can be combined.
+
+We used Bayesian Markov games to model Japanese auctions (details at [Explaining the model](#explaining-the-model)): Here, at each round the game can probabilistically transition to two new games: One is the same game of the previous round with price incremented, whereas the other one is the empty game in which no strategies are played and payoffs are calculated.
 
 
 # Code deep dive
@@ -158,6 +176,7 @@ In some of the models we developed, such as the ones employing first price aucti
 Our models are written in a custom DSL compiled to `haskell`. Here we give a brief description of how our software works.
 
 ### The building blocks
+
 The basic building block of our model is called **open game**, and can be thought of as a game-theoretic lego brick. This may represent a player, a nature draw, a payoff matrix or a complex combination of these elements. It has the following form:
 
 ```haskell
@@ -267,7 +286,6 @@ Branching is represented using the operator `+++`. So, for instance, if `SubGame
 
 Graphically, branching can be represented by resorting to [sheet diagrams](https://arxiv.org/abs/2010.13361), but as they are quite complicated to draw, this depiction is rarely used in practice.
 
-
 ### Supplying strategies
 
 As usual in classical game theory, a strategy conditions on the observables and assigns a (possibly randomized) action. 
@@ -284,7 +302,6 @@ strGame1 ::- strGame2 ::- strGame3 ::- Nil
 
 To evaluate strategies, it is enough to just run the `main` function defined in `Main.hs`. This is precisely what happens when we give the command `stack run`. In turn, `main` invokes functions defined in `Analysis.hs` which define the right notion of equilibrium to check. If you want to change strategies on the fly, just open a REPL (Cf. [Interactive Execution](#interactive-execution)) and give the command `main`.
 You can make parametric changes or even define new strategies and/or notions of equilibrium by editing the relevant files (cf. [File structure](#file-structure)). Once you save your edits, giving `:r` will recompile the code on the fly. Calling `main` again will evaluate the changes.
-
 
 #### Stochasticity
 
@@ -312,6 +329,7 @@ In the example above, the player observes some parameters (`Parameter1` and `Par
 The upside of assuming this little amount of overhead is that switching from pure to mixed strategies can be easily done on the fly, without having to change the model beforehand.
 
 #### Branching
+
 As a word of caution notice that, in a game with branching, we need to provide a possible strategy for each branch. For example, suppose to have the following game:
 
 - Player 1 can choose between option A and B;
@@ -327,7 +345,7 @@ In this game the best strategy is clearly (A,A1). Nevertheless, we need to suppl
 
 ## File structure
 
-The model is composed of several files, stored in `main` branch:
+The model is composed of several files. There are two branches, `master` and `dynamic-auctions`. The first one contains all of our models involving n-th (reserve) price auctions, whereas the second one contains the model code for Japanese auctions, which can be easily extended to other dynamic auction types. The file structure for both branches is the same:
 
 - The `app` folder contains `Main.hs`, where the `main` function is defined. This is the function executed when one gives `stack run` (cf. [Running the analytics](#running-the-analytics)).
 - The `pics` folder exists only for the purpose of this documentation file.
@@ -339,16 +357,20 @@ The code proper is contained in the `src` folder:
 - `Model.hs` is where the fully assembled games are.
 - `Strategies.hs` defines the strategies for all games in this folder. See [Supplying strategies](#supplying-strategies) for details.
 - `Analytics.hs` contains the definition of equilibrium. These are automatically run by the `main` function when calling `stack run` in [Normal execution](#normal-execution) mode. Alternatively, one can call these functions directly while in [Interactive execution](#interactive-execution) mode, as in, for instance,
-
-
-    Please refer to [Running the analytics](#running-the-analytics) for more information.
+  ```haskell
+    printEquilibriumDynamicAuction parametersJapaneseAuction 10 japaneseAuctionStrategyTuple initialAction
+  ```
+  Please refer to [Running the analytics](#running-the-analytics) for more information.
+- `Diagnostics.hs` contains a set of helper functions that can be used to display more or less information about equilibrium, player moves and overall state of the game. These are useful to 'debug' a game in case of conceptually unexpected outputs.
 - `Parametrization.hs` contains all the hardcoded exhogenous parameters to be fed to the model, such as auction reserve price, players' names, initial players' endowments etc.
 - `Types.hs` defines the types of many of the things we use in our model, such as private values, outcome of an auction, etc.
+
+As an extra perk, we included the file `NestedAuctions.hs`, which contains some initial experiments around recursive auction systems.
+
 
 # Analytics
 
 Now, we switch focus on *analytics*, which we defined as the set of techniques we employ to verify if and when a supplied strategies results in an *equilibrium*. The notion of *equilibrium* we rely upon is the one of [Nash equilibrium](https://en.wikipedia.org/wiki/Nash_equilibrium), which intuitively describes a situation where, for each player, unilaterally deviating from the chosen strategy results in a loss.
-
 
 ## Reading the analytics
 
@@ -387,7 +409,6 @@ Observable State:
 ```
 
 `Observable State` contains a dump of all the game parameters that are currenlty observable by all players. This is usually a lot of information, mainly useful for debugging purposes. All the other field names are pretty much self-describing. 
-
 
 ## Strategies employed in the analysis
 
@@ -450,6 +471,30 @@ proposerMaxBid =
           in playDeterministically $ maxBid)
 ```
 
+For the Japanese auction, we leverage the fact that it is a [truthful mechanism](https://en.wikipedia.org/wiki/Strategyproofness): As such, each **Bidder** has a [dominant strategy](https://en.wikipedia.org/wiki/Japanese_auction#Strategies) consisting in leaving the auction only when the bid value exceeds the private valuation. We implemented this dominant strategy for each **Bidder**.
+
+```haskell
+-- | Truth telling strategy
+-- Restrict the strategy space
+participateBelowPriceStrategy
+  :: Kleisli
+       Stochastic
+       (BidValue,Bool,Maybe PrivateNameValue)
+       Bool
+participateBelowPriceStrategy =
+  Kleisli
+    (\(value,bool,privateValueMaybe) ->
+       case bool of
+         False ->
+           playDeterministically False
+         True  ->
+           case privateValueMaybe of
+             Nothing -> playDeterministically False
+             Just (_,privateValue) -> case value <=  privateValue of
+                True  -> playDeterministically True
+                False -> playDeterministically False)
+```
+
 ## Running the analytics
 
 As already stressed in [Evaluating strategies](#evaluating-strategies), there are two main ways to run strategies. In the [Normal execution](#normal-execution) mode, one just needs to give the command `stack run`. This command will execute a pre-defined battery of strategies using the parameters predefined in the source code. These parameters can be varied as one pleses. Once this is done and the edits are saved, `stack run` will automatically recompile the code and run the simulation with the new parameter set.
@@ -464,7 +509,12 @@ In particular, calling the function `main` in interactive mode will result in th
 
 ## Results
 
-The summary of our results can be found right at the top of this document, at the subsection [analytics results](#analytics-results). 
+The summary of our results can be found right at the top of this document, at the subsection [analytics results](#analytics-results).
 
+We implemented auctions that have been well studied in the literature. As such, we deemed that focusing on equilibrium would not be particularly insightful, and we explicitly verified equilibrium only for the Japanese auction. For instance, we already know that in a Japanese auction and in a second price auction (more precisely in a Vickrey auction), bidding truthfully gives equilibrium.
+
+As such, the main focus of this FRP has been on [Simulations](#equilibrium-vs-simulations). The model allows to simulate auctions by specifying private valuations for all players and bidding strategies. The strategies can then be run, and the model determines the winner.
 
 ### Sanity checks
+
+Aside from the usual code testing, we verified that bidding truthfully is a Nash equilibrium for Japanese auctions.
