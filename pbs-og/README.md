@@ -33,7 +33,8 @@ In this FRP we focused on modelling some of the thought experiments around Propo
 
 ## Analytics results
 
-The analytics results of this FRP aren't particularly surprising, as dominant strategies for n-th price auctions and many dynamic auctions are well-known. As such, we just implemented those. More details can be found in [Results](#results).
+The analytics results of this FRP aren't particularly surprising, as dominant strategies for n-th price auctions and many dynamic auctions are well-known. As such, we just implemented those. As such, we preferred to focus on simulations more than on equilibria. More details can be found in [Results](#results).
+
 
 # Installation
 
@@ -80,6 +81,7 @@ Since under the hood games are nothing more than functions, REPL allows us to se
 This tool is expecially powerful to better understand the structure of the strategies we have to feed to the model, which can grow very complicated as the model scales.
 
 ## Addendum: Installing haskell
+
 If you dont' have either `haskell` or `stack`, it is necessary to install them. There are many ways to do so; on Linux/macOS systems, we suggest using [ghcup](https://www.haskell.org/ghcup/).
 In a terminal, type:
 
@@ -147,7 +149,6 @@ Moreover, we also modelled *dynamic auctions*. These are auctions where the info
 - The winning **Bidder** is chosen randomly from the possible winning **Bidders**. In practice, this is implemented as a uniform probability distribution.
 - The winning **Bidder** has to pay the bid displayed at time $t$.
 
-
 ## Equilibrium Vs. Simulations
 
 In this model, aside of equilibrium checking, we also provided simulation capabilities. This is defined in `Analytics.hs`, see [File structure](#file-structure) for more information. In a nutshell:
@@ -169,6 +170,7 @@ In a Markov game that is furthermore Bayesian, players can reason counterfactual
 
 We used Bayesian Markov games with Japanese auctions (details at [Explaining the mode](#explaining-the-model)): Here, at each round the game can probabilistically transition to two new games: One is the same game of the previous round with price incremented, whereas the other one is the empty games in which no strategies are played and payoffs are calculated.
 
+
 # Code deep dive
 
 ## Recap: DSL primer
@@ -176,6 +178,7 @@ We used Bayesian Markov games with Japanese auctions (details at [Explaining the
 Our models are written in a custom DSL compiled to `haskell`. Here we give a brief description of how our software works.
 
 ### The building blocks
+
 The basic building block of our model is called **open game**, and can be thought of as a game-theoretic lego brick. This may represent a player, a nature draw, a payoff matrix or a complex combination of these elements. It has the following form:
 
 ```haskell
@@ -285,7 +288,6 @@ Branching is represented using the operator `+++`. So, for instance, if `SubGame
 
 Graphically, branching can be represented by resorting to [sheet diagrams](https://arxiv.org/abs/2010.13361), but as they are quite complicated to draw, this depiction is rarely used in practice.
 
-
 ### Supplying strategies
 
 As usual in classical game theory, a strategy conditions on the observables and assigns a (possibly randomized) action. 
@@ -302,7 +304,6 @@ strGame1 ::- strGame2 ::- strGame3 ::- Nil
 
 To evaluate strategies, it is enough to just run the `main` function defined in `Main.hs`. This is precisely what happens when we give the command `stack run`. In turn, `main` invokes functions defined in `Analysis.hs` which define the right notion of equilibrium to check. If you want to change strategies on the fly, just open a REPL (Cf. [Interactive Execution](#interactive-execution)) and give the command `main`.
 You can make parametric changes or even define new strategies and/or notions of equilibrium by editing the relevant files (cf. [File structure](#file-structure)). Once you save your edits, giving `:r` will recompile the code on the fly. Calling `main` again will evaluate the changes.
-
 
 #### Stochasticity
 
@@ -330,6 +331,7 @@ In the example above, the player observes some parameters (`Parameter1` and `Par
 The upside of assuming this little amount of overhead is that switching from pure to mixed strategies can be easily done on the fly, without having to change the model beforehand.
 
 #### Branching
+
 As a word of caution notice that, in a game with branching, we need to provide a possible strategy for each branch. For example, suppose to have the following game:
 
 - Player 1 can choose between option A and B;
@@ -367,10 +369,10 @@ The code proper is contained in the `src` folder:
 
 As an extra perk, we included the file `NestedAuctions.hs`, which contains some initial experiments around recursive auction systems.
 
+
 # Analytics
 
 Now, we switch focus on *analytics*, which we defined as the set of techniques we employ to verify if and when a supplied strategies results in an *equilibrium*. The notion of *equilibrium* we rely upon is the one of [Nash equilibrium](https://en.wikipedia.org/wiki/Nash_equilibrium), which intuitively describes a situation where, for each player, unilaterally deviating from the chosen strategy results in a loss.
-
 
 ## Reading the analytics
 
@@ -409,7 +411,6 @@ Observable State:
 ```
 
 `Observable State` contains a dump of all the game parameters that are currenlty observable by all players. This is usually a lot of information, mainly useful for debugging purposes. All the other field names are pretty much self-describing. 
-
 
 ## Strategies employed in the analysis
 
@@ -496,7 +497,6 @@ participateBelowPriceStrategy =
                 False -> playDeterministically False)
 ```
 
-
 ## Running the analytics
 
 As already stressed in [Evaluating strategies](#evaluating-strategies), there are two main ways to run strategies. In the [Normal execution](#normal-execution) mode, one just needs to give the command `stack run`. This command will execute a pre-defined battery of strategies using the parameters predefined in the source code. These parameters can be varied as one pleses. Once this is done and the edits are saved, `stack run` will automatically recompile the code and run the simulation with the new parameter set.
@@ -513,6 +513,10 @@ In particular, calling the function `main` in interactive mode will result in th
 
 The summary of our results can be found right at the top of this document, at the subsection [analytics results](#analytics-results).
 
+We implemented auctions that have been well studied in the literature. As such, we deemed that focusing on equilibrium would not be particularly insightful, and we explicitly verified equilibrium only for the Japanese auction. For instance, we already know that in a Japanese auction and in a second price auction (more precisely in a Vickrey auction), bidding truthfully gives equilibrium.
 
+As such, the main focus of this FRP has been on [Simulations](#equilibrium-vs-simulations). The model allows to simulate auctions by specifying private valuations for all players and bidding strategies. The strategies can then be run, and the model determines the winner.
 
 ### Sanity checks
+
+Aside from the usual code testing, we verified that bidding truthfully is a Nash equilibrium for Japanese auctions.
