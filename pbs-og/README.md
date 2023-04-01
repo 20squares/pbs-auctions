@@ -347,7 +347,7 @@ In this game the best strategy is clearly (A,A1). Nevertheless, we need to suppl
 
 ## File structure
 
-The model is composed of several files, stored in `main` branch:
+The model is composed of several files. There are two branches, `master` and `dynamic-auctions`. The first one contains all of our models involving n-th (reserve) price auctions, whereas the second one contains the model code for Japanese auctions, which can be easily extended to other dynamic auction types. The file structure for both branches is the same:
 
 - The `app` folder contains `Main.hs`, where the `main` function is defined. This is the function executed when one gives `stack run` (cf. [Running the analytics](#running-the-analytics)).
 - The `pics` folder exists only for the purpose of this documentation file.
