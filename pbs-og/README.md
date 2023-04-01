@@ -144,7 +144,7 @@ In the case named `Assembled auctions` instead there are:
     - The ticker goes up by a fixed amount at every interval.
     - Each time the ticker goes up, **Bidders** must decide if they want to leave the auction or not.
     - If at time $t$ all players have left the auction, then the players in the auction at time $t-1$ are the possibly winning bidders.
-    - The winning **Bidder** is chosen randomly from the possible winning **Bidders**. In practice, this is implemented as a uniform probability distribution.
+    - The winning **Bidder** is chosen randomly from the possible winning bidders. In practice, this is implemented as a uniform probability distribution.
     - The winning **Bidder** has to pay the bid displayed at time $t$.
 
 ## Equilibrium Vs. Simulations
