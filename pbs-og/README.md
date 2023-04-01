@@ -158,7 +158,7 @@ The reason why we deem simulations important in this framework is because they c
 
 ## Approximate equilibrium
 
-In some of the models we developed, such as the ones employing first price auctions, we adopted an approximate version of equilibrium, which discards profitable strategic deviations if profits are closer than a fixed $\epsilon$ to the current one. The reason for this is that some results around equilibria in auction theory depend on a hypothesis of continuity: Namely, it is postulated that some variables range within the real numbers. Computers force us to work in a discretized settings, the consequence being that this hypothesis cannot satisfied in our models. Approximate equilibria allow us to 'blur' the line between discrete and continuous, and to obtain results in line with the ones 'pen and paper' auction theory would predict.
+In some of the models we developed, such as the ones employing first price auctions, we adopted an approximate version of equilibrium, which discards profitable strategic deviations if profits are closer than a fixed $\epsilon$ to the current one. The reason for this is that some results around equilibria in auction theory depend on a hypothesis of continuity: Namely, it is postulated that some variables range within the real numbers. Computers force us to work in a discretized settings, the consequence being that this hypothesis cannot be satisfied in our model. Approximate equilibria allow us to 'blur' the line between discrete and continuous, and to obtain results in line with the ones 'pen and paper' auction theory would predict.
 
 ## Markov games
 
