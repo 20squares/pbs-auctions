@@ -141,7 +141,7 @@ In the case named `Assembled auctions` instead there are:
   - All-pay auctions, where all **Bidders** pay, not just the winning one.
   - We also modelled *dynamic auctions*. These are auctions where the information available to players is constantly updated, and players can dynamically adapt their bidding strategy over time. In particular, we implemented `Japanese auctions`, which work as follows:
     - There is a ticker displaying the current price. This is the bid value.
-    - The thicker goes up by a fixed amount at every interval.
+    - The ticker goes up by a fixed amount at every interval.
     - Each time the ticker goes up, **Bidders** must decide if they want to leave the auction or not.
     - If at time $t$ all players have left the auction, then the players in the auction at time $t-1$ are the possibly winning bidders.
     - The winning **Bidder** is chosen randomly from the possible winning **Bidders**. In practice, this is implemented as a uniform probability distribution.
