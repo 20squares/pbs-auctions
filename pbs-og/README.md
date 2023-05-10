@@ -31,9 +31,13 @@
     - [Running the analytics](#running-the-analytics)
     - [Results](#results)
     - [Sanity checks](#sanity-checks)
+
+
+
 # Summary
 
 In this FRP we focused on modelling some of the thought experiments around Proposer-Builder Separation (PBS). Essentially, we implemented a modular bidding game and experimented with different auction procedures.
+
 
 ## Analytics results
 
@@ -44,6 +48,9 @@ The analytics results of this FRP are not particularly surprising, as dominant s
 Clearly, this FRP is just a proof of concept. However, we do believe that it can be evolved into a fully-flagged auction-simulation software suite, which may benefit different actors in PBS (and in the OFA ecosystem more in general) to better position themselves within the landscape.
 
 More details can be found in [Results](#results).
+
+
+
 
 # Installation
 To run the model, it is necessary to have `haskell` and `stack` installed on your machine. Refer to the subsection [Addendum: Installing haskell](#addendum-installing-haskell) for instructions. A deeper dive into the code structure can be found in the [Code deep dive](#code-deep-dive) subsection.
@@ -202,6 +209,7 @@ In the case named `Assembled auctions` instead there are:
     - The winning **Bidder** is chosen randomly from the possible winning bidders. In practice, this is implemented as a uniform probability distribution.
     - The winning **Bidder** has to pay the bid displayed at time $t$.
 
+
 ## Equilibrium Vs. Simulations
 
 In this model, aside of equilibrium checking, we also provided simulation capabilities. This is defined in `Analytics.hs`, see [File structure](#file-structure) for more information. In a nutshell:
@@ -211,9 +219,11 @@ In this model, aside of equilibrium checking, we also provided simulation capabi
 
 The reason why we deem simulations important in this framework is because they can be used to quickly check how profitable a given strategy is. Simulations are also computationally lightweight compared to equilibrium checking.
 
+
 ## Approximate equilibrium
 
 In some of the models we developed, such as the ones employing first price auctions, we adopted an approximate version of equilibrium, which discards profitable strategic deviations if profits are closer than a fixed $\epsilon$ to the current one. The reason for this is that some results around equilibria in auction theory depend on a hypothesis of continuity: Namely, it is postulated that some variables range within the real numbers. Computers force us to work in a discretized settings, the consequence being that this hypothesis cannot be satisfied in our model. Approximate equilibria allow us to 'blur' the line between discrete and continuous, and to obtain results in line with the ones 'pen and paper' auction theory would predict.
+
 
 ## Markov games
 
@@ -224,7 +234,9 @@ In a Markov game that is furthermore Bayesian, players can reason counterfactual
 We used Bayesian Markov games to model Japanese auctions (details at [Explaining the model](#explaining-the-model)): Here, at each round the game can probabilistically transition to two new games: One is the same game of the previous round with price incremented, whereas the other one is the empty game in which no strategies are played and payoffs are calculated.
 
 
+
 # Code deep dive
+
 
 ## Recap: DSL primer
 
@@ -398,6 +410,7 @@ Moreover, suppose that the payoffs are as follows:
 
 In this game the best strategy is clearly (A,A1). Nevertheless, we need to supply a strategy for Player2 also in the 'B' branch: Even if Player1 will never rationally choose B, Player2 needs to be endowed with a clear choice between B1 and B2 in case this happens.
 
+
 ## File structure
 
 The model is composed of several files. There are two branches, `master` and `dynamic-auctions`. The first one contains all of our models involving n-th (reserve) price auctions, whereas the second one contains the model code for Japanese auctions, which can be easily extended to other dynamic auction types. The file structure for both branches is the same:
@@ -423,9 +436,11 @@ The code proper is contained in the `src` folder:
 As an extra perk, we included the file `NestedAuctions.hs`, which contains some initial experiments around recursive auction systems.
 
 
+
 # Analytics
 
 Now, we switch focus on *analytics*, which we defined as the set of techniques we employ to verify if and when a supplied strategies results in an *equilibrium*. The notion of *equilibrium* we rely upon is the one of [Nash equilibrium](https://en.wikipedia.org/wiki/Nash_equilibrium), which intuitively describes a situation where, for each player, unilaterally deviating from the chosen strategy results in a loss.
+
 
 ## Reading the analytics
 
@@ -464,6 +479,7 @@ Observable State:
 ```
 
 `Observable State` contains a dump of all the game parameters that are currenlty observable by all players. This is usually a lot of information, mainly useful for debugging purposes. All the other field names are pretty much self-describing. 
+
 
 ## Strategies employed in the analysis
 
@@ -550,6 +566,7 @@ participateBelowPriceStrategy =
                 False -> playDeterministically False)
 ```
 
+
 ## Running the analytics
 
 As already stressed in [Evaluating strategies](#evaluating-strategies), there are two main ways to run strategies. In the [Normal execution](#normal-execution) mode, one just needs to give the command `stack run`. This command will execute a pre-defined battery of strategies using the parameters predefined in the source code. These parameters can be varied as one pleses. Once this is done and the edits are saved, `stack run` will automatically recompile the code and run the simulation with the new parameter set.
@@ -561,6 +578,7 @@ functionName parameters
 ```
 
 In particular, calling the function `main` in interactive mode will result in the same behavior of calling `stack run` in normal mode. Again, editing the source code and then hitting `:r` will trigger recompilation on the fly.
+
 
 ## Results
 
