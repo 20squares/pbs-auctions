@@ -37,9 +37,13 @@ In this FRP we focused on modelling some of the thought experiments around Propo
 
 ## Analytics results
 
-The analytics results of this FRP aren't particularly surprising, as dominant strategies for n-th price auctions and many dynamic auctions are well-known. Hence, we preferred focusing on simulations more than on equilibria. More details can be found in [Results](#results).
+The analytics results of this FRP are not particularly surprising, as dominant strategies for n-th price auctions and many dynamic auctions, when known, are already well-studied in the literature. As a consequence, we preferred focusing on simulations more than on equilibria: In a nutshell, this means that albeit this model can be used to verify that a given strategy for a given auction is an equilibrium, we believe that its best application would be to answer questions like:
 
+"Given some auction design, and assuming that every player plays according to some fixed strategy, what is my expected outcome given a bidding strategy?"
 
+Clearly, this FRP is just a proof of concept. However, we do believe that it can be evolved into a fully-flagged auction-simulation software suite, which may benefit different actors in PBS (and in the OFA ecosystem more in general) to better position themselves within the landscape.
+
+More details can be found in [Results](#results).
 
 # Installation
 To run the model, it is necessary to have `haskell` and `stack` installed on your machine. Refer to the subsection [Addendum: Installing haskell](#addendum-installing-haskell) for instructions. A deeper dive into the code structure can be found in the [Code deep dive](#code-deep-dive) subsection.
@@ -562,7 +566,7 @@ In particular, calling the function `main` in interactive mode will result in th
 
 The summary of our results can be found right at the top of this document, at the subsection [analytics results](#analytics-results).
 
-We implemented auctions that have been well studied in the literature. As such, we deemed that focusing on equilibrium would not be particularly insightful, and we explicitly verified equilibrium only for the Japanese auction. For instance, we already know that in a Japanese auction and in a second price auction (more precisely in a Vickrey auction), bidding truthfully gives equilibrium.
+We implemented auctions that have been well studied in the literature. As such, we deemed that focusing on equilibrium would not be particularly insightful, and we explicitly verified equilibrium only for the Japanese auction. For instance, we already know that in a Japanese auction and in a second price auction (more precisely in a [Vickrey auction](https://en.wikipedia.org/wiki/Vickrey_auction)), bidding truthfully gives equilibrium.
 
 As such, the main focus of this FRP has been on [Simulations](#equilibrium-vs-simulations). The model allows to simulate auctions by specifying private valuations for all players and bidding strategies. The strategies can then be run, and the model determines the winner.
 
