@@ -693,4 +693,4 @@ Here we have four players. `True` or `False` determine if a player is still part
 
 ### Sanity checks
 
-Aside from the usual code testing, we verified that bidding truthfully is a Nash equilibrium for Japanese auctions and second-price auctions.
+As we briefly mentioned already, for auctions that have well-known equilibria, we used equilibrium checking as a form of sanity check. We verified equilibria for the current status quo, the first price, the second price, the all pay and the Japanese auction. The equilibria can be checked by running `onlyEquilibria` in [Interactive execution](#interactive-execution) mode.
