@@ -29,7 +29,7 @@ onlySimulations = do
   print $ sum expectedOutcomeCurrent
   putStrLn "~~~~~~~~First Price Auction~~~~~~~~~"
   putStrLn "List of expected bids: "
-  let expectedOutcomeFirstPrice =  printSimulationSimultaneousBidAuction parametersFPAuction (bidShareOfValueStrategyTuple 0.75)
+  let expectedOutcomeFirstPrice =  printSimulationSimultaneousBidAuction parametersFPAuction (bidShareOfValueStrategyTuple 1)
   print expectedOutcomeFirstPrice
   putStrLn "Expected payment to auctioneer"
   print $ sum expectedOutcomeFirstPrice

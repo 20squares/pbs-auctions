@@ -31,6 +31,7 @@
     - [Strategies emplyed in the analysis](#strategies-employed-in-the-analysis)
     - [Running the analytics](#running-the-analytics)
     - [Results](#results)
+      - [Static auctions](#static-auctions)
     - [Sanity checks](#sanity-checks)
 
 
@@ -50,7 +51,11 @@ Clearly, this FRP is just a proof of concept. However, we do believe that it can
 
 More details can be found in [Results](#results).
 
+The full battery of available analytics can be run by following the [Normal execution](#normal-execution) subsection. As equilibrium checking is quite computationally extensive, the full battery of analytics has been furthermore split in two: in [Interactive execution](#interactive-execution) mode, give:
 
+- `onlyEquilibria` to just run the equilibrium checking part (computationally heavy);
+- `onlySimulations` to just run the simulation part (computationally lightweight);
+- `main` to run both.
 
 
 # Installation
@@ -204,7 +209,7 @@ We instantiate the model in a very simple way. In the case named `Current Status
 - Two **Relayers**, each one managing a set of two **Bidders**. There is no overlap between these sets, that is, there is no **Bidder** submitting their bid to more than one **Relayer**.
 - One **Proposer**, which has to choose between the two bids selected by **Relayers**.
 
-In this model **Relayers** just pick the biggest big out of the subset they manage, whereas **Proposer** doesn't follow any auction procedure and can pick the winning bid following any possible strategy.
+In this model **Relayers** just pick the biggest bid out of the subset they manage, in a completely deterministic, non-strategic way. On the other hand, **Proposer** does not follow any auction procedure and can pick the winning bid following any possible strategy.
 
 In the case named `Assembled auctions` instead there are:
 - Four **Bidders**;
@@ -597,7 +602,94 @@ This section is an expansion of the section [analytics results](#analytics-resul
 
 As we remarked in [analytics results](#analytics-results), we implemented auctions that have been well-studied in the literature, and as such, we deemed that focusing on equilibrium would not be particularly insightful. For instance, we already know that in a Japanese auction and in a second price auction (more precisely in a [Vickrey auction](https://en.wikipedia.org/wiki/Vickrey_auction)), bidding truthfully results in equilibrium. As such, equilibrium checking of well-known auctions can be used to perform [sanity checks](#sanity-checks).
 
-Having ascertained that focusing on equilibria would most likely amount to reinvent existing literature in auction theory, in this FRP the focus has been witched on [Simulations](#equilibrium-vs-simulations). The model allows to simulate auctions by specifying private valuations for all players and bidding strategies. The strategies can then be run, and the model determines the winner.
+Having ascertained that focusing on equilibria would most likely amount to reinvent existing literature in auction theory, in this FRP the focus has been witched on [Simulations](#equilibrium-vs-simulations). The model allows to simulate auctions by specifying private valuations for all players and bidding strategies. The strategies can then be run, and the model determines the expected outcomes for bidders and auctioneer.
+
+### Static auctions
+
+As for the 'static auctions' (status quo, n-th price, all pay), the simulations are encapsulated in the following three functions:
+
+- `printSimulationCurrentAuction`
+- `printSimulationSimultaneousBidAuction`
+- `printSimulationAllPayAuction`
+
+The functions need to be fed some parameters and some strategies, as in
+
+```haskell
+printSimulationSimultaneousBidAuction parameters strategyTuple
+```
+
+Of the three, the first function runs the auction related to the current status quo, whereas the last runs the allpay auction. The second function simulates 1st, 2nd, nth price auction. The kind of auction we want to simulate is specified in the auction parameters. For instance, the following parameters, fed to `printSimulationSimultaneousBidAuction`, would define four identical players competing into a first price auction with zero reserve price (notice that the number of players is not changeable without also changing `Components.hs`):
+
+```haskell
+parametersFPAuction = Parameters
+  { nameProposer =  "proposer"
+  , name1 = "bidder1"
+  , name2 = "bidder2"
+  , name3 = "bidder3"
+  , name4 = "bidder4"
+  , valueSpace1 = privateValueLS
+  , valueSpace2 = privateValueLS
+  , valueSpace3 = privateValueLS
+  , valueSpace4 = privateValueLS
+  , actionSpace1 = actionLS
+  , actionSpace2 = actionLS
+  , actionSpace3 = actionLS
+  , actionSpace4 = actionLS
+  , reservePrice = zeroReservePrice
+  , winningPrice = 1
+  , approxError  = 0.4
+  }
+```
+
+ Some predefined choices of parameters have been defined in `Parameters.hs` (see [File structure](#file-structure) for more information).
+
+The output of these three functions is always a list of *expected bids*, computed as:
+
+$$ \text{bid size} \cdot \text{probability the player has to pay} $$
+
+Notice that in some auctions the players have to pay only when they win, and so the probability to pay equals the probability of winning the auction. In some other auctions, like the all pay auction, players have to pay also when they do not win.
+
+Intuitively, expected bids mean the following: Suppose that a player has a private valuation (which in our case is a probability distribution, e.g. `privateValueLS` above). Each player has a strategy, which determines how much the player will bid given their private valuation. The game theoretic model  weights the amount paid with the probability of actually having to pay. So, for instance, if a player bids $10$, and if the player pays $50\%$ of the times, the expected bid will be $5$. Clearly, if the private valuation of each player is *certain*, then given any auction we can determine *with certainty* who the paying players will be. So, for instance, if we have two players with private valuation $10$ and $3$, respectively, in a first price auction, the expected bids will be $10$ and $0$, respectively.
+
+Notice that, in our setting, players do not know other players' strategies, nor have *priors* on them. This means that the players themselves *do not know* their expected bids. The output of the functions above constitutes then a 'bird-eye' view that only the software engine has access to (and this is exactly why the software is useful!).
+
+The expected payment to the auctioneer can be computed by just taking the sum of these expected bids. The idea here is the following: Imagine that in a game there are $n$ players, each bidding some amount, and each with a certain probability to pay. How much the auctioneer makes is computed as:
+
+$$ \sum_{i=1}^n \text{bid player}_i \cdot \text{probability player}_i \text{ has to pay} $$
+
+Which, as we said, is just the sum of the expected bids.
+
+The following snippet of code prints expected bids and expected payment to auctioneer in a pretty way:
+
+```haskell
+putStrLn "List of expected bids: "
+let expectedOutcome =  printSimulationFunction parameters strategyTuple
+print expectedOutcome
+putStrLn "Expected payment to auctioneer"
+print $ sum expectedOutcome
+```
+
+With the outcome looking as:
+```sh
+List of expected bids: 
+[bid1,bid2,bid3,...]
+Expected payment to auctioneer
+bid1 + bid2 + bid3 + ...
+```
+
+This is how `onlySimulations` in `Main.hs` is defined.
+
+### Dynamic auctions
+
+Dinamic auctions are more involved, as we have to take into account the fact that in a [Markov game](#markov-games) things repeat. The function `printSimulationRepeatedStageGame` prints simulations for a repeated game. In the case of a Japanese auction, the output would look something like this:
+
+```haskell
+[(Right ([("bidder1",False),("bidder2",False),("bidder3",True),("bidder4",True)],[("bidder1",False),("bidder2",False),("bidder3",True),("bidder4",True)],6.0,Just ("bidder1",5.0),Just ("bidder2",5.0),Just ("bidder3",7.0),Just ("bidder4",10.0),False,False,True,True),1.0)]
+```
+
+Here we have four players. `True` or `False` determine if a player is still part of the auction or not
+
+
 
 ### Sanity checks
 
