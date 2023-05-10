@@ -15,6 +15,10 @@ import OpenGames.Preprocessor
 
 ---------------
 -- 1 Components
+---------------
+
+----------
+-- Bidding
 
 -- Draws a value and creates a pair of _value_ _name_
 natureDrawsTypeStage name valueSpace = [opengame|
@@ -52,7 +56,29 @@ biddingStage name actionSpace approxError = [opengame|
     returns   :  payments  ;
   |]
 
+-- Individual bidding stage for dynamic auction format
+biddingStageDynamic name actionSpace approxError = [opengame|
 
+    inputs    :  state, ownBidding, nameValuePair  ;
+    feedback  :   ;
+
+    :---------------------------:
+    inputs    :  state, ownBidding, nameValuePair  ;
+    feedback  :   ;
+    operation :  dependentEpsilonDecision approxError name (const actionSpace) ;
+    outputs   :  bid ;
+    returns   :  0  ;
+    // Payments are determined at the terminal stage
+    :---------------------------:
+
+    outputs   :  bid ;
+    returns   :  ;
+  |]
+
+
+-----------
+-- Payments
+  
 -- Transforms the bids and the relevant reservePrice into the payments by players
 transformPaymentsReservePrice winningPrice  = [opengame|
 
@@ -182,7 +208,7 @@ determinePayoffs name = [opengame|
 
   |]
 
- -- Given the bids, and the proposer's choice, determine outcome 
+-- Given the bids, and the proposer's choice, determine outcome 
 computeOutcomes  = [opengame|
 
    inputs    : winningBid, bids ;
@@ -199,5 +225,88 @@ computeOutcomes  = [opengame|
    outputs   : paymentsBidders ;
    returns   :      ;
 
+  |]
+
+-------------------
+-- Dynamic auctions
+-------------------
+
+-- Check if private information already exists; if not draw it; else use it
+
+determinePrivateValue name valueSpace = [opengame|
+
+   inputs    : nameValuePair  ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    : nameValuePair ;
+   feedback  :      ;
+   operation : forwardFunction $ createOrUpdatePrivateValue name valueSpace;
+   outputs   : nameValuePairUpdated1 ;
+   returns   :      ;
+
+   inputs    : nameValuePairUpdated1 ;
+   feedback  :      ;
+   operation : natureEndInput ;
+   outputs   : nameValuePairUpdate2 ;
+   returns   :      ;
+
+   inputs    : nameValuePairUpdate2 ;
+   feedback  :      ;
+   operation : forwardFunction embedMaybe ;
+   outputs   : nameValuePairFinal ;
+   returns   :      ;
+
+   :-----------------:
+
+   outputs   : nameValuePairFinal ;
+   returns   :      ;
+
+  |]
+
+ 
+  
+-- Check if game is finished, if so determine payoffs
+-- Given the bids, and the proposer's choice, determine outcome 
+updateOrTerminateAuction increasePerRound terminationRuleAuction = [opengame|
+
+   inputs    : bidsLsOld,bidLs, state, valuePairs, bids  ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    : bidsLsOld,bidLs, state, valuePairs, bids ;
+   feedback  :      ;
+   operation : forwardFunction $ terminationRuleAuction increasePerRound;
+   outputs   : endedOrNextState ;
+   returns   :      ;
+   :-----------------:
+
+   outputs   : endedOrNextState ;
+   returns   :      ;
+
+  |]
+
+-- If the game ended; assign payments
+transformPaymentsDynamicAuction paymentRule  = [opengame|
+
+   inputs    : bids, state ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    : bids, state ;
+   feedback  :      ;
+   operation : forwardFunction $ uncurry $ paymentRule ;
+   outputs   : paymentsLottery ;
+   returns   :      ;
+
+   inputs    : paymentsLottery ;
+   feedback  :      ;
+   operation : natureEndInput ;
+   outputs   : payments ;
+   returns   :      ;
+   :-----------------:
+
+   outputs   : payments ;
+   returns   :      ;
   |]
 

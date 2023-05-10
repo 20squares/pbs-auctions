@@ -15,6 +15,7 @@ main = do
 --  printEquilibriumSimultaneousBidAuction parameters2ndPAuction truthTellingStrategyTuple
 --  putStrLn "All pay Auction: "
 --  printEquilibriumAllPayAuction parametersAllPayAuction allPayAuctionStrategyTuple
+{-
   putStrLn "~~~~~~~Simulate current auction outcome~~~~~~~"
   putStrLn "List of expected bids: "
   let expectedOutcomeCurrent =  printSimulationCurrentAuction parametersCurrentAuction (currentAuctionShareOfValueStrategy 0.75)
@@ -39,3 +40,11 @@ main = do
   print expectedOutcomeAllPay
   putStrLn "Expected payment to auctioneer"
   print $ sum expectedOutcomeAllPay
+
+--}
+  putStrLn "~~~~~~~Equilibrium Dynamic Auction~~~~~~~"
+  printEquilibriumDynamicAuction parametersJapaneseAuction 10 japaneseAuctionStrategyTuple initialAction
+  putStrLn "~~~~~~~Show Full Output Dynamic Auction~~~~~~~"
+  printOutputDynamicAuction parametersJapaneseAuction 10 japaneseAuctionStrategyTuple initialAction
+  putStrLn "~~~~~~~Simulate Dynamic Auction~~~~~~~"
+  printSimulationRepeatedStageGame parametersJapaneseAuction 10 japaneseAuctionStrategyTuple initialAction

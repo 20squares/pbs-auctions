@@ -5,16 +5,21 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Auctions.Analytics
    where
 
+import Auctions.AuctionSupportFunctions
+import Auctions.Diagnostics
 import Auctions.Model
 import Auctions.Types
 
 import OpenGames.Engine.Engine hiding (Payoff)
 import OpenGames.Preprocessor
 
+
+import qualified Control.Monad.State  as ST
 import qualified Numeric.Probability.Distribution as P
 
 {-
@@ -79,3 +84,69 @@ printSimulationSimultaneousBidAuction parameters strategy = formExpectedPayment 
 simulateAllPayAuction Parameters{..} strategy = play (biddingAllPay  name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError) strategy
 
 printSimulationAllPayAuction parameters strategy = formExpectedPayment $ nextState (simulateAllPayAuction parameters strategy) ()
+
+
+---------------------
+-- 3 Dynamic auctions
+---------------------
+
+----------------------------------
+-- Preparing Markov game structure
+
+-- Determine continuation payoff with the same repeated strategy
+determineContinuationPayoffs par 1        strat action = pure ()
+determineContinuationPayoffs par iterator strat action = do
+   nextContinuation executeStrat action
+   nextInput <- ST.lift $ nextState executeStrat action
+   determineContinuationPayoffs par  (pred iterator) strat nextInput
+ where
+   executeStrat =  play (game par) strat
+   game ParametersJapaneseAuction{..}  = fullStateGame jname1 jname2 jname3 jname4 jvalueSpace1 jvalueSpace2 jvalueSpace3 jvalueSpace4 jactionSpace1 jactionSpace2 jactionSpace3 jactionSpace4 japproxError jincreasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
+
+-- Context used for the evaluation of the current stage game 
+contextCont par iterator strat initialAction = StochasticStatefulContext (pure ((),initialAction)) (\_ action -> determineContinuationPayoffs par iterator strat action)
+  where
+   game ParametersJapaneseAuction{..}  = fullStateGame jname1 jname2 jname3 jname4 jvalueSpace1 jvalueSpace2 jvalueSpace3 jvalueSpace4 jactionSpace1 jactionSpace2 jactionSpace3 jactionSpace4 japproxError jincreasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
+
+--------------
+-- Equilibrium
+
+-- Define eq of repeated game
+repeatedStageGameEq par iterator strat initialAction = evaluate (game par) strat context
+  where
+    context  = contextCont par iterator strat initialAction
+    game ParametersJapaneseAuction{..}  = fullStateGame jname1 jname2 jname3 jname4 jvalueSpace1 jvalueSpace2 jvalueSpace3 jvalueSpace4 jactionSpace1 jactionSpace2 jactionSpace3 jactionSpace4 japproxError jincreasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
+
+-- Show equilibrium output
+printEquilibriumDynamicAuction par iterator strat initialAction = do
+  let bidder1 ::- bidder2 ::- bidder3 ::- bidder4 ::- Nil = repeatedStageGameEq par iterator strat initialAction
+  putStrLn "Bidder1: "
+  putStrLn $ checkEqMaybe2L bidder1
+  putStrLn "Bidder2: "
+  putStrLn $ checkEqMaybe2L bidder2
+  putStrLn "Bidder3: "
+  putStrLn $ checkEqMaybe2L bidder3
+  putStrLn "Bidder4: "
+  putStrLn $ checkEqMaybe2L bidder4
+
+-- Show full output
+printOutputDynamicAuction par iterator strat initialAction = do
+  let bidder1 ::- bidder2 ::- bidder3 ::- bidder4 ::- Nil = repeatedStageGameEq par iterator strat initialAction
+  putStrLn "Bidder1: "
+  putStrLn $ showDiagnosticInfoMaybe2L bidder1
+  putStrLn "Bidder2: "
+  putStrLn $ showDiagnosticInfoMaybe2L bidder2
+  putStrLn "Bidder3: "
+  putStrLn $ showDiagnosticInfoMaybe2L bidder3
+  putStrLn "Bidder4: "
+  putStrLn $ showDiagnosticInfoMaybe2L bidder4
+
+
+
+-- Run step-wise simulation
+simulateRepeatedStageGame par iterator strat = play (game par) strat 
+  where
+    game ParametersJapaneseAuction{..}  = fullStateGame jname1 jname2 jname3 jname4 jvalueSpace1 jvalueSpace2 jvalueSpace3 jvalueSpace4 jactionSpace1 jactionSpace2 jactionSpace3 jactionSpace4 japproxError jincreasePerRound terminationRuleJapaneseAuction japaneseAuctionPayments
+
+printSimulationRepeatedStageGame par iterator strat initialAction = print $ P.decons $ nextState (simulateRepeatedStageGame par iterator strat) initialAction
+

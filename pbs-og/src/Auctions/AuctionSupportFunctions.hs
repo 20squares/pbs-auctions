@@ -4,6 +4,7 @@ import Auctions.Types
 
 import OpenGames.Engine.Engine (Agent,Stochastic,uniformDist,pureAction,playDeterministically)
 
+import Control.Monad (join)
 import Data.List (maximumBy, sortBy, permutations)
 import qualified Data.Map.Strict as M
 import Data.Ord (comparing)
@@ -12,8 +13,6 @@ import Numeric.Probability.Distribution (decons)
 {--
 Contains basic functionality needed for different auction formats
 -}
-
-
 
 
 ----------------------
@@ -155,7 +154,62 @@ computeOutcomeFunction (agent,bid) ls =
            else (k,0,False)
      in fmap updateFunction ls
 
-----------------------------------------------------
+
+
+-------------------
+-- Dynamic auctions
+-------------------
+
+-- Determine if game has ended, if not update current bid
+terminationRuleJapaneseAuction increaseBidPerRound (bidsOld,bids,currentBid,(nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4),(bid1, bid, bid3, bid4)) =
+    case length  [x | (_,x) <- bids, x == True] of
+      0 -> Left (bidsOld,currentBid, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4)
+      -- ^ All the leading bidders dropped out at once; end the auction; use the bids from last round
+      1 -> Left (bids,currentBid, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4)
+      -- ^ Only one bidder left; end the auction; use the current bid to determine the winner
+      _ -> Right (bids,currentBid + increaseBidPerRound, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4,bid1, bid, bid3, bid4)
+      -- ^ Still more than two bidders active; keep the auction running
+
+-- In case of the japanese auction compute payments
+japaneseAuctionPayments :: [BidJapaneseAuction] -> BidValue -> Stochastic [AuctionOutcome]
+japaneseAuctionPayments bids currentValue =
+  let winnersOnly = filter (\(_,bidding) -> bidding == True) bids
+      in case length winnersOnly of
+            1 -> playDeterministically $ fmap (generatePayment currentValue) bids
+            _ -> do
+                 (winnerName,_) <- uniformDist winnersOnly
+                 let outcomes' = fmap (\(name,_) -> if name /= winnerName then (name,0,False) else (name,-currentValue,True)) bids
+                 playDeterministically outcomes'
+  where generatePayment v (n,bidding) =
+          if bidding == True
+             then (n,v,True)
+             else (n,0,False)
+
+-- Helper function to unify the branching output
+unifyEmptyBranching :: Either a (Either a b) -> Either a b
+unifyEmptyBranching = join 
+
+-- Create or copy private value
+createOrUpdatePrivateValue name valueSpace x = 
+  case x of
+    Nothing -> do
+        v <- uniformDist valueSpace
+        playDeterministically (name,v)
+    Just v  -> playDeterministically v
+
+-- Embed value in Maybe
+embedMaybe x = Just x 
+
+setPayoffMaybe :: Maybe (Agent, PrivateValue) -> [AuctionOutcome] -> Payoff
+setPayoffMaybe privateValue payments =
+  case privateValue of
+    Nothing           -> 0
+    Just (name,value) -> setPayoff (name,value) payments
+
+
+
+
+---------------------------------------------------
 -- EXPERIMENTAL Additional functionality for hierarchical auctions
 ----------------------------------------------------
 

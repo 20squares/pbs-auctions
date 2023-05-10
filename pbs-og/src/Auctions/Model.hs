@@ -12,6 +12,7 @@ module Auctions.Model
 
 import Auctions.AuctionSupportFunctions
 import Auctions.Components
+import Auctions.Types
 
 import OpenGames.Engine.Engine
 import OpenGames.Preprocessor
@@ -21,9 +22,9 @@ import OpenGames.Preprocessor
 Contains the relevant simultaneous bid auctions needed
 -}
 
--------------------
--- 1 Bidding module
--------------------
+--------------------
+-- 1 Bidding modules
+--------------------
 
 -- | Describes the bidder stage; the number of players, individual evaluations etc. can be changed here w/o affecting the assembled auctions further below
 bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 approxError = [opengame| 
@@ -62,10 +63,75 @@ bidders name1 name2  valueSpace1 valueSpace2 actionSpace1 actionSpace2 approxErr
    |]
 
 
+biddersDynamic name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError = [opengame| 
+   inputs    :  bidsOld, state, nameValuePair1, nameValuePair2, nameValuePair3, nameValuePair4, bidOld1, bidOld2, bidOld3, bidOld4   ;
+   feedback  :      ;
+
+   :-----------------:
+   inputs    :  nameValuePair1    ;
+   feedback  :      ;
+   operation :  determinePrivateValue name1 valueSpace1 ;
+   outputs   :  nameValuePairUpdated1 ;
+   returns   :   ;
+
+
+   inputs    :  state, bidOld1, nameValuePairUpdated1    ;
+   feedback  :      ;
+   operation :  biddingStageDynamic name1 actionSpace1 approxError ;
+   outputs   :  bid1 ;
+   returns   :   ;
+
+   inputs    :  nameValuePair2    ;
+   feedback  :      ;
+   operation :  determinePrivateValue name2 valueSpace2 ;
+   outputs   :  nameValuePairUpdated2 ;
+   returns   :   ;
+
+
+   inputs    :  state, bidOld2, nameValuePairUpdated2    ;
+   feedback  :      ;
+   operation :  biddingStageDynamic name2 actionSpace2 approxError ;
+   outputs   :  bid2 ;
+   returns   :   ;
+
+   inputs    :  nameValuePair3    ;
+   feedback  :      ;
+   operation :  determinePrivateValue name3 valueSpace3 ;
+   outputs   :  nameValuePairUpdated3 ;
+   returns   :   ;
+
+
+   inputs    :  state, bidOld3, nameValuePairUpdated3    ;
+   feedback  :      ;
+   operation :  biddingStageDynamic name3 actionSpace3 approxError ;
+   outputs   :  bid3 ;
+   returns   :   ;
+
+   inputs    :  nameValuePair4    ;
+   feedback  :      ;
+   operation :  determinePrivateValue name4 valueSpace4 ;
+   outputs   :  nameValuePairUpdated4 ;
+   returns   :   ;
+
+
+   inputs    :  state, bidOld4, nameValuePairUpdated4    ;
+   feedback  :      ;
+   operation :  biddingStageDynamic name4 actionSpace4 approxError ;
+   outputs   :  bid4 ;
+   returns   :   ;
+
+
+   :-----------------:
+
+   outputs   :   bidsOld, [(name1,bid1),(name2,bid2),(name3,bid3),(name4,bid4)],state, nameValuePairUpdated1, nameValuePairUpdated2,nameValuePairUpdated3,nameValuePairUpdated4, bid1, bid2, bid3, bid4  ;
+   returns   :   ;
+   |]
+
+
+  
 -----------------------
 -- 2 Current Status quo
 -----------------------
-
 
 -----------------------
 -- Builders to relay
@@ -187,9 +253,9 @@ currentAuctionGame nameProposer name1 name2 name3 name4 valueSpace1 valueSpace2 
    |]
 
 
------------------------
--- 3 Assembled auctions
------------------------
+------------------------------
+-- 3 Assembled static auctions
+------------------------------
 
 -- 3.1: 2 players with exogenous reserve price
 -- NOTE this format allows for first price, second price w/o reserve price
@@ -263,4 +329,162 @@ biddingAllPay  name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 value
    outputs   : payments ;
    returns   : ;
    |]
+
+
+-------------------------------
+-- 4 Assembled dynamic auctions
+-------------------------------
+
+-- Account for payoffs 
+payoffsDynamicAuction  name1 name2 name3 name4  = [opengame| 
+
+   inputs    : payments, nameValuePair1, nameValuePair2,nameValuePair3, nameValuePair4;
+   feedback  : ;
+
+   :-----------------:
+
+   inputs    :  nameValuePair1, payments;
+   feedback  :  ;
+   operation : forwardFunction $ uncurry setPayoffMaybe ;
+   outputs   : payoff1 ;
+   returns   :  ;
+
+   inputs    : payoff1;
+   feedback  :  ;
+   operation : addPayoffs name1 ;
+   outputs   :  ;
+   returns   :  ;
+
+   inputs    :  nameValuePair2, payments;
+   feedback  :  ;
+   operation : forwardFunction $ uncurry setPayoffMaybe ;
+   outputs   : payoff2 ;
+   returns   :  ;
+
+   inputs    : payoff2;
+   feedback  :  ;
+   operation : addPayoffs name2 ;
+   outputs   :  ;
+   returns   :  ;
+
+   inputs    :  nameValuePair3, payments;
+   feedback  :  ;
+   operation : forwardFunction $ uncurry setPayoffMaybe ;
+   outputs   : payoff3 ;
+   returns   :  ;
+
+   inputs    : payoff3;
+   feedback  :  ;
+   operation : addPayoffs name3 ;
+   outputs   :  ;
+   returns   :  ;
+
+   inputs    :  nameValuePair4, payments;
+   feedback  :  ;
+   operation : forwardFunction $ uncurry setPayoffMaybe ;
+   outputs   : payoff4 ;
+   returns   :  ;
+
+   inputs    : payoff4;
+   feedback  :  ;
+   operation : addPayoffs name4 ;
+   outputs   :  ;
+   returns   :  ;
+
+   :-----------------:
+
+   outputs   : [payoff1,payoff2,payoff3,payoff4] ;
+   returns   : ;
+   |]
+
+
+-- If the auction ends, account for the payoffs
+terminalGame  name1 name2 name3 name4 paymentRule = [opengame| 
+
+   inputs    : bids, state , nameValuePair1, nameValuePair2,nameValuePair3, nameValuePair4;
+   feedback  : ;
+
+   :-----------------:
+
+   inputs    : bids, state ;
+   feedback  :  ;
+   operation : transformPaymentsDynamicAuction paymentRule ;
+   outputs   : payments ;
+   returns   :  ;
+
+   inputs    : payments, nameValuePair1, nameValuePair2,nameValuePair3, nameValuePair4;
+   feedback  :  ;
+   operation : payoffsDynamicAuction  name1 name2 name3 name4 ;
+   outputs   : payoffs ;
+   returns   :  ;
+
+  :-----------------:
+
+   outputs   : payoffs ;
+   returns   : ;
+   |]
+
+
+
+-- Branch into end game or continue
+branchingAuction name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError paymentRule = terminalGame  name1 name2 name3 name4 paymentRule +++ biddersDynamic name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError
+
+-- Combine the game into a state game which branches into an endstate or continues
+stateGame name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule = [opengame| 
+
+   inputs    : bidsOld,bids, state , nameValuePair1, nameValuePair2,nameValuePair3, nameValuePair4, bid1, bid2, bid3, bid4;
+   feedback  : ;
+
+   :-----------------:
+
+   inputs    : bidsOld, bids, state, (nameValuePair1, nameValuePair2,nameValuePair3, nameValuePair4), (bid1, bid2, bid3, bid4) ;
+   feedback  :  ;
+   operation : updateOrTerminateAuction increasePerRound terminationRuleAuction ;
+   outputs   : endedOrNextState ;
+   returns   :  ;
+
+   inputs    : endedOrNextState;
+   feedback  :  ;
+   operation : branchingAuction name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError paymentRule ;
+   outputs   : continueGame ;
+   returns   :  ;
+
+  :-----------------:
+
+   outputs   : continueGame;
+   returns   : ;
+   |]
+
+-- Markov state game that can get repeated; if the auction ends, we stay in the empty game; otherwise continue the auction
+fullStateGame name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule =
+  [opengame| 
+
+   inputs    : stateOld ;
+   feedback  : ;
+
+   :-----------------:
+
+   inputs    : stateOld ;
+   feedback  :  ;
+   operation : idBranching name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule ;
+   outputs   : stateUpdated ;
+   returns   :  ;
+
+   inputs    : stateUpdated ;
+   feedback  :  ;
+   operation : forwardFunction unifyEmptyBranching ;
+   outputs   : stateNew ;
+   returns   :  ;
+
+  :-----------------:
+
+   outputs   : stateNew ;
+   returns   : ;
+   |]
+  where
+    -- Unify the output - either stuck in empty game or continue the game
+    idBranching name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule = idGame +++ stateGame name1 name2 name3 name4 valueSpace1 valueSpace2 valueSpace3 valueSpace4 actionSpace1 actionSpace2 actionSpace3 actionSpace4 approxError increasePerRound terminationRuleAuction paymentRule
+    -- Helper to construct an empty game
+    idGame :: StochasticStatefulBayesianOpenGame '[] '[] a () a ()
+    idGame = fromFunctions id id
 
