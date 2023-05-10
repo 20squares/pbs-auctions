@@ -5,6 +5,10 @@
     - [Normal execution](#normal-execution)
     - [Interactive execution](#interactive-execution)
     - [Addendum: Installing haskell](#addendum-installing-haskell)
+        - [Installing through `nix` (recommended)](#installing-through-nix-recommended)
+          - [Installing `nix`](#installing-nix)
+          - [Setting up the environment](#setting-up-the-environment)
+        - [Installing through GHCup](#installing-through-ghcup)
 - [Explaining the model](#explaining-the-model)
     - [Equilibrium vs. Simulations](#equilibrium-vs-simulations)
     - [Approximate equilibrium](#approximate-equilibrium)
@@ -36,14 +40,14 @@ In this FRP we focused on modelling some of the thought experiments around Propo
 The analytics results of this FRP aren't particularly surprising, as dominant strategies for n-th price auctions and many dynamic auctions are well-known. Hence, we preferred focusing on simulations more than on equilibria. More details can be found in [Results](#results).
 
 
-# Installation
 
+# Installation
 To run the model, it is necessary to have `haskell` and `stack` installed on your machine. Refer to the subsection [Addendum: Installing haskell](#addendum-installing-haskell) for instructions. A deeper dive into the code structure can be found in the [Code deep dive](#code-deep-dive) subsection.
 
 There are two main ways of running the model: normal and interactive execution.
 
-## Normal execution
 
+## Normal execution
 To 'just' run the model, type
 
 ```sh
@@ -52,8 +56,8 @@ stack run
 in the main directory, where the file `stack.yaml` is located.
 The model will be compiled and a predefined set of analytics will be run. The results of the predefined analytics will be shown on terminal.
 
-## Interactive execution
 
+## Interactive execution
 One of the most powerful features of `haskell` is *REPL mode*. This allows you to recompile the code on the fly, to query the type of a function and a lot of other things. To start interactive mode, just run
 
 ```sh
@@ -80,9 +84,50 @@ Since under the hood games are nothing more than functions, REPL allows us to se
 
 This tool is expecially powerful to better understand the structure of the strategies we have to feed to the model, which can grow very complicated as the model scales.
 
+
 ## Addendum: Installing haskell
 
-If you dont' have either `haskell` or `stack`, it is necessary to install them. There are many ways to do so; on Linux/macOS systems, we suggest using [ghcup](https://www.haskell.org/ghcup/).
+If you dont' have either `haskell` or `stack`, it is necessary to install them. There are many ways to do so, of which we propose two: The first one, which we recommend, is through the [`nix`](https://nixos.org/download.html) package manager. The second one, is via [`GHCup`](https://www.haskell.org/ghcup/).
+
+### Installing through `nix` (recommended)
+
+[`nix`](https://nixos.org/download.html) is a package manager that allows to build environments deterministically. This means that it offers the right granularity to set up a developing environment exactly as one wants it. All of our projects get shipped together with something called a *`nix` flake*, which is a set of instructions telling `nix` to install all needed dependencies precisely at the version we used during development. This drastically reduces the possibility of compiling/execution errors and it is why we strongly recommend using `nix`.
+
+#### Installing `nix`
+
+To install `nix`, follow the [official instructions](https://nixos.org/download.html) for your operating system. Please note that on windows this will require installing [WSL2](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux) first. 
+
+`nix` flakes require enabling experimental features to work properly. To do so in a Unix-based system, type the following commands in a terminal:
+
+```sh
+mkdir -p ~/.config/nix
+echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+```
+
+On other operating systems the procedure may be different.
+
+#### Setting up the environment
+
+Now that `nix` is up and running, we can fire up the environment. In a terminal, navigate in the main repo folder, where `flake.nix` is. Before running any command, type
+
+```sh
+nix develop
+```
+
+This will create a reproducible ephemeral devshell exposing all the required dependencies for running the project (slack, ghc, haskell-language-sever). Please note that this will take around 7GB of space.
+
+While in the devshell, you can proceed as in [Normal execution](#normal-execution) and [Interactive execution](#interactive-execution). When you're done trying out the model, you can type
+
+```sh
+exit
+```
+
+or close the terminal window to exit from the devshell.
+
+
+### Installing through `GHCup`
+
+Another way to set up the environment to run the project is via [`GHCup`](https://www.haskell.org/ghcup/).
 In a terminal, type:
 
 ```sh
@@ -93,19 +138,25 @@ If asked, respond 'yes' (`Y`) to the following questions:
 
 ```
 Do you want to install haskell-language-server (HLS)?
-Do you want to enable better integration of stack with GHCup?
+Do you want to enable better integration of stack with `GHCup`?
 ```
 
-Afterwards, `ghcup` may ask you to install some additional packages before continuing with the installation. Follow the advice before continuing. Then, just follow the instructions through the end.
+Afterwards, `GHCup` may ask you to install some additional packages before continuing with the installation. Follow the advice before continuing. Then, just follow the instructions through the end.
 
-`ghcup` is a very convenient solution in that it installs only in one folder (on Linux systems, `/home/$USER/.ghcup`). Should you decide to get rid of `haskell` altogether, just delete the folder.
+Again, the installation is quite massive in terms of space. In this respect, `GHCup` is a convenient solution in that it installs only in one folder (on Linux systems, `/home/$USER/.ghcup`). Should you decide to get rid of `haskell` altogether, just delete the folder.
 
-**A note of warning:** GHC, the `haskell` compiler installed with `ghcup`, relies heavily on the GCC compiler. GHC assumes that GCC comes together with all the relevant libraries. As such, in compiling the model you may get errors such as:
+Again, once `GHCup` has installed, you can proceed as in [Normal execution](#normal-execution) and [Interactive execution](#interactive-execution).
+
+**A note of warning:** GHC, the `haskell` compiler installed with `GHCup`, relies heavily on the GCC compiler. GHC assumes that GCC comes together with all the relevant libraries. As such, in compiling the model you may get errors such as:
 
 ```sh
 /usr/bin/ld.gold: error: cannot find -ltinfo
 ```
+
 these errors hint at missing GCC libraries, which will have to be installed independently. The precise iter to do so depends on the libraries involved and on your operating system. Unfortunately there is little we can do about it, as this is a problem with the general `haskell` developer infrastructure.
+
+The main way to avoid this is by using the recommended installation via [`nix`](#installing-through-nix-recommended).
+
 
 
 # Explaining the model
