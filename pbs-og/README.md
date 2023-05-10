@@ -582,12 +582,12 @@ In particular, calling the function `main` in interactive mode will result in th
 
 ## Results
 
-The summary of our results can be found right at the top of this document, at the subsection [analytics results](#analytics-results).
+This section is an expansion of the section [analytics results](#analytics-results), which can be found at the top of this document.
 
-We implemented auctions that have been well studied in the literature. As such, we deemed that focusing on equilibrium would not be particularly insightful, and we explicitly verified equilibrium only for the Japanese auction. For instance, we already know that in a Japanese auction and in a second price auction (more precisely in a [Vickrey auction](https://en.wikipedia.org/wiki/Vickrey_auction)), bidding truthfully gives equilibrium.
+As we remarked in [analytics results](#analytics-results), we implemented auctions that have been well-studied in the literature, and as such, we deemed that focusing on equilibrium would not be particularly insightful. For instance, we already know that in a Japanese auction and in a second price auction (more precisely in a [Vickrey auction](https://en.wikipedia.org/wiki/Vickrey_auction)), bidding truthfully results in equilibrium. As such, equilibrium checking of well-known auctions can be used to perform [sanity checks](#sanity-checks).
 
-As such, the main focus of this FRP has been on [Simulations](#equilibrium-vs-simulations). The model allows to simulate auctions by specifying private valuations for all players and bidding strategies. The strategies can then be run, and the model determines the winner.
+Having ascertained that focusing on equilibria would most likely amount to reinvent existing literature in auction theory, in this FRP the focus has been witched on [Simulations](#equilibrium-vs-simulations). The model allows to simulate auctions by specifying private valuations for all players and bidding strategies. The strategies can then be run, and the model determines the winner.
 
 ### Sanity checks
 
-Aside from the usual code testing, we verified that bidding truthfully is a Nash equilibrium for Japanese auctions.
+Aside from the usual code testing, we verified that bidding truthfully is a Nash equilibrium for Japanese auctions and second-price auctions.
