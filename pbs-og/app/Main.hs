@@ -25,9 +25,9 @@ putStrLn "~~~~~~~~~~~~SIMULATIONS~~~~~~~~~~~~~"
 putStrLn "~~~~~~~~~~Current Auction~~~~~~~~~~~"
 putStrLn "List of expected bids: "
 let expectedOutcomeCurrent =  printSimulationCurrentAuction parametersCurrentAuction (currentAuctionShareOfValueStrategy 0.75)
-print expectedOutcomeCurrent
-putStrLn "Expected payment to auctioneer"
-print $ sum expectedOutcomeCurrent
+  print expectedOutcomeCurrent
+  putStrLn "Expected payment to auctioneer"
+  print $ sum expectedOutcomeCurrent
 putStrLn "~~~~~~~~First Price Auction~~~~~~~~~"
 putStrLn "List of expected bids: "
 let expectedOutcomeFirstPrice =  printSimulationSimultaneousBidAuction parametersFPAuction (bidShareOfValueStrategyTuple 0.75)

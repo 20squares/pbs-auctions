@@ -8,6 +8,7 @@
         - [Installing through `nix` (recommended)](#installing-through-nix-recommended)
           - [Installing `nix`](#installing-nix)
           - [Setting up the environment](#setting-up-the-environment)
+          - [Freeing space](#freeing-space)
         - [Installing through GHCup](#installing-through-ghcup)
 - [Explaining the model](#explaining-the-model)
     - [Equilibrium vs. Simulations](#equilibrium-vs-simulations)
@@ -134,6 +135,16 @@ exit
 ```
 
 or close the terminal window to exit from the devshell.
+
+
+#### Freeing space
+
+If you do not plan to use the model in the foreseeable future and want to reclaim some hard-disk space, in a terminal (outside the `nix develop` environmnet) just give:
+
+```sh
+nix-collect-garbage
+nix store optimise
+```
 
 
 ### Installing through `GHCup`
