@@ -22,25 +22,25 @@ onlyEquilibria = do
 onlySimulations = do
   putStrLn "~~~~~~~~~~~~SIMULATIONS~~~~~~~~~~~~~"
   putStrLn "~~~~~~~~~~Current Auction~~~~~~~~~~~"
-  putStrLn "List of expected bids: "
+  putStrLn "List of players' expected outcomes: "
   let expectedOutcomeCurrent =  printSimulationCurrentAuction parametersCurrentAuction (currentAuctionShareOfValueStrategy 0.75)
   print expectedOutcomeCurrent
   putStrLn "Expected payment to auctioneer"
   print $ sum expectedOutcomeCurrent
   putStrLn "~~~~~~~~First Price Auction~~~~~~~~~"
-  putStrLn "List of expected bids: "
+  putStrLn "List of players' expected outcomes: "
   let expectedOutcomeFirstPrice =  printSimulationSimultaneousBidAuction parametersFPAuction (bidShareOfValueStrategyTuple 1)
   print expectedOutcomeFirstPrice
   putStrLn "Expected payment to auctioneer"
   print $ sum expectedOutcomeFirstPrice
   putStrLn "~~~~~~~~Second Price Auction~~~~~~~~"
-  putStrLn "List of expected bids: "
+  putStrLn "List of players' expected outcomes: "
   let expectedOutcomeSecondPrice =  printSimulationSimultaneousBidAuction parameters2ndPAuction truthTellingStrategyTuple
   print expectedOutcomeSecondPrice
   putStrLn "Expected payment to auctioneer"
   print $ sum expectedOutcomeSecondPrice
   putStrLn "~~~~~~~~~~All pay Auction~~~~~~~~~~~"
-  putStrLn "List of expected bids: "
+  putStrLn "List of players' expected outcomes: "
   let expectedOutcomeAllPay =  printSimulationAllPayAuction parametersAllPayAuction allPayAuctionStrategyTuple
   print expectedOutcomeAllPay
   putStrLn "Expected payment to auctioneer"
