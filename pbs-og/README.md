@@ -765,3 +765,9 @@ Finally, even if we did not implement this for time constraints, it is worth str
 
 As we briefly mentioned already, for auctions that have well-known equilibria, we used equilibrium checking as a form of sanity check. We verified equilibria for the current status quo, the first price, the second price, the all pay and the Japanese auction. The equilibria can be checked by running `onlyEquilibria` in [Interactive execution](#interactive-execution) mode.
 
+### Closing remarks
+
+Simulating various auction procedures gave us interesting insights into the possible future of PBS. One clear thing is that dynamic auctions are considerably more difficult to simulate than static ones, and this is without even accounting for the possibility of nesting dynamic acutions recursively, or for the fact that utilizing dynamic auctions in PBS would probably have to account for information latency.
+
+In general, static auctions seem to be a good choice for us for a couple of reasons. Firstly, it is relatively easy to specify auction types in a standardized format (winner pays/all pay, n-th price, reserve price, etc). This would be of particular importance should the PEPSI proposal be accepted.
+Secondly, static auctions are relatively lightweight to simulate, even in a nested/recursive auction setting. This would be really important for all market participants: blockspace auctioneers would have an easy way to estimate their revenue, whereas builders would have a sensible way to estimate their expected outcome.
