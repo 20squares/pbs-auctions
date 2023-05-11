@@ -645,37 +645,37 @@ parametersFPAuction = Parameters
   }
 ```
 
- Some predefined choices of parameters have been defined in `Parameters.hs` (see [File structure](#file-structure) for more information).
+Some predefined choices of parameters have been defined in `Parameters.hs` (see [File structure](#file-structure) for more information).
 
-The output of these three functions is always a list of *expected bids*, computed as:
+The output of these three functions is always a list of *expected outcomes*, computed as:
 
 $$ \text{bid size} \cdot \text{probability the player has to pay} $$
 
 Notice that in some auctions the players have to pay only when they win, and so the probability to pay equals the probability of winning the auction. In some other auctions, like the all pay auction, players have to pay also when they do not win.
 
-Intuitively, expected bids mean the following: Suppose that a player has a private valuation (which in our case is a probability distribution, e.g. `privateValueLS` above). Each player has a strategy, which determines how much the player will bid given their private valuation. The game theoretic model  weights the amount paid with the probability of actually having to pay. So, for instance, if a player bids $10$, and if the player pays $50\%$ of the times, the expected bid will be $5$. Clearly, if the private valuation of each player is *certain*, then given any auction we can determine *with certainty* who the paying players will be. So, for instance, if we have two players with private valuation $10$ and $3$, respectively, in a first price auction, the expected bids will be $10$ and $0$, respectively.
+Intuitively, expected outcomes mean the following: Suppose that a player has a private valuation (which in our case is a probability distribution, e.g. `privateValueLS` above). Each player has a strategy, which determines how much the player will bid given their private valuation. The game theoretic model  weights the amount paid with the probability of actually having to pay. So, for instance, if a player bids $10$, and if the player pays $50\%$ of the times, the expected outcome will be $5$. Clearly, if the private valuation of each player is *certain*, then given any auction we can determine *with certainty* who the paying players will be. So, for instance, if we have two players with private valuation $10$ and $3$, respectively, in a first price auction, the expected outcomes will be $10$ and $0$, respectively.
 
-Notice that, in our setting, players do not know other players' strategies, nor have *priors* on them. This means that the players themselves *do not know* their expected bids. The output of the functions above constitutes then a 'bird-eye' view that only the software engine has access to (and this is exactly why the software is useful!).
+Notice that, in our setting, players do not know other players' strategies, nor have *priors* on them. This means that the players themselves *do not know* their expected outcomes. The output of the functions above constitutes then a 'bird-eye' view that only the software engine has access to (and this is exactly why the software is useful!).
 
-The expected payment to the auctioneer can be computed by just taking the sum of these expected bids. The idea here is the following: Imagine that in a game there are $n$ players, each bidding some amount, and each with a certain probability to pay. How much the auctioneer makes is computed as:
+The expected payment to the auctioneer can be computed by just taking the sum of these expected outcomes. The idea here is the following: Imagine that in a game there are $n$ players, each bidding some amount, and each with a certain probability to pay. How much the auctioneer makes is computed as:
 
 $$ \sum_{i=1}^n \text{bid player}_i \cdot \text{probability player}_i \text{ has to pay} $$
 
-Which, as we said, is just the sum of the expected bids.
+Which, as we said, is just the sum of the expected outcomes.
 
-The following snippet of code prints expected bids and expected payment to auctioneer in a pretty way:
+The following snippet of code prints expected outcomes and expected payment to auctioneer in a pretty way:
 
 ```haskell
-putStrLn "List of expected bids: "
+putStrLn "List of expected outcomes: "
 let expectedOutcome =  printSimulationFunction parameters strategyTuple
 print expectedOutcome
 putStrLn "Expected payment to auctioneer"
 print $ sum expectedOutcome
 ```
 
-With the outcome looking as:
+With the output looking as:
 ```sh
-List of expected bids: 
+List of expected outcomes: 
 [bid1,bid2,bid3,...]
 Expected payment to auctioneer
 bid1 + bid2 + bid3 + ...
@@ -685,16 +685,83 @@ This is how `onlySimulations` in `Main.hs` is defined.
 
 ### Dynamic auctions
 
-Dinamic auctions are more involved, as we have to take into account the fact that in a [Markov game](#markov-games) things repeat. The function `printSimulationRepeatedStageGame` prints simulations for a repeated game. In the case of a Japanese auction, the output would look something like this:
+Dinamic auctions are more involved, as we have to take into account the fact that in a [Markov game](#markov-games) things repeat. That is, depending on the type of the game, on the strategy, and on the probability distristributions expressing players' valuations for each player, at each state the game can evolve to a new state with a given probability.
+
+In the case of Japanese auctions, if we start from the initial state of the auction, then the auction evolution describes a tree, where each path from the root (the state where the auction begins) to a leaf (a state in which the auction ends) describes a possible auction evolution. Each of these paths is weighted by the probability of that course of action effectively taking place. Hence, the expected outcome for a given player $i$ can be calculated as:
+
+$$\sum_{j \in \text{paths where player } i \text{ has to pay}} \text{bid player}_i \cdot \text{path}_j$$
+
+Whereas the expected payment to the auctioneer will be, as before,
+
+$$\sum_{i=1}^n \left( \sum_{j \in \text{paths where player } i \text{ has to pay}} \text{bid player}_i \cdot \text{path}_j \right)$$
+
+ The function `printSimulationRepeatedStageGame` prints simulations for a repeated game. In the case of a Japanese auction, the output would look something like this:
+
+However, we *did not* implement this in our model beacause of time constraints. Instead, the function `printSimulationRepeatedStageGame` prints simulations for a given stage of the game. The usage is as follows:
 
 ```haskell
-[(Right ([("bidder1",False),("bidder2",False),("bidder3",True),("bidder4",True)],[("bidder1",False),("bidder2",False),("bidder3",True),("bidder4",True)],6.0,Just ("bidder1",5.0),Just ("bidder2",5.0),Just ("bidder3",7.0),Just ("bidder4",10.0),False,False,True,True),1.0)]
+printSimulationRepeatedStageGame parameters iterator strategy initialAction
 ```
 
-Here we have four players. `True` or `False` determine if a player is still part of the auction or not
+Where: 
+- `parameters` are the fixed parameters for the auction;
+- `strategy` is the strategy tuple for the players;
+- `iterator` does not really matter in the context of simulations, but it does for equilibrium checking. As the Markov game evolves like a tree, the equilibrium checker has to deep into each path to find a profitable deviation. The `iterator` parameter instructs the equilibrium checker regarding how deep we want it to explore;
+- `initialAction` represents the initial state of the game.
 
+In the context of simulations, we do not care about `iterator`: we are only going to look at what happens in the next stage of the auction, so we are always only taking just one step forward in the tree. We use `initialAction` to specify 'where in the tree' we want to start the simulation. `initialAuction` for the Japanese auction (defined in `Parameters.hs`) looks like this:
 
+```haskell
+initialAction = Right (
+  [("bidder1",True),("bidder2",True),("bidder3",True),("bidder4",True)],
+  [("bidder1",False),("bidder2",False),("bidder3",True),("bidder4",True)],
+  5,
+  Just ("bidder1",5),
+  Just ("bidder2",5),
+  Just ("bidder3",7),
+  Just ("bidder4",10),
+  False,
+  False,
+  True,
+  True
+)
+```
+
+This is quite a bit of information, and admittedly a bit rough around the edges:
+
+- The first two lines represent the previous state of the game and the current one. As Markov games only use the last state to compute the following one, this is enough context for the engine to understand 'how we got where we are'.
+- The third line represents the value of the clock in the current round.
+- The next four lines represent the private valuation for each of the participants.
+- The last four lines are redundant information, which essentially mimicks the second line.
+
+The output of this function will be a probability distribution over the possible next rounds. For instance, it may look like the following:
+
+```haskell
+[(
+  Right (
+    [("bidder1",False),("bidder2",False),("bidder3",True),("bidder4",True)],
+    [("bidder1",False),("bidder2",False),("bidder3",True),("bidder4",True)],
+    6.0,
+    Just ("bidder1",5.0),
+    Just ("bidder2",5.0),
+    Just ("bidder3",7.0),
+    Just ("bidder4",10.0),
+    False,
+    False,
+    True,
+    True
+  ),
+  1.0
+)]
+```
+
+As the probability distribution is a list of couples `(next state, probability)`, the output above tells us that the next state is determined with certainty (the second parameter is `1.0`): The clock will have gone up by `1` (from `5.0` to `6.0`), whereas the state won't have evolved: all players that were in the auction before are still playing.
+
+We also provide another function, `printOutputDynamicAuction`, that accepts the same parameters of `printOutputDynamicAuction`, but produces a more verbose output. This couple of functions can be useful to calculate the transition probability to the next stage.
+
+Finally, even if we did not implement this for time constraints, it is worth stressing how iterating over these functions is what's needed to calculate the expected outcome for all players.
 
 ### Sanity checks
 
 As we briefly mentioned already, for auctions that have well-known equilibria, we used equilibrium checking as a form of sanity check. We verified equilibria for the current status quo, the first price, the second price, the all pay and the Japanese auction. The equilibria can be checked by running `onlyEquilibria` in [Interactive execution](#interactive-execution) mode.
+
