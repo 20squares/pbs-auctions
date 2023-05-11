@@ -4,47 +4,54 @@ import Auctions.Analytics
 import Auctions.Parameterization
 import Auctions.Strategies
 
+onlyEquilibria = do
+  putStrLn "~~~~~~~~EQUILIBRIUM CHECKING~~~~~~~~"
+  putStrLn "~~Mainly as a form of sanity check~~"
+  putStrLn "~~~~~~~~~~Current Auction~~~~~~~~~~~"
+  printEquilibriumCurrentAuction parametersCurrentAuction (currentAuctionShareOfValueStrategy 0.75)
+  putStrLn "~~~~~~~~First Price Auction~~~~~~~~~"
+  printEquilibriumSimultaneousBidAuction parametersFPAuction (bidShareOfValueStrategyTuple 0.75)
+  putStrLn "~~~~~~~~Second Price Auction~~~~~~~~"
+  printEquilibriumSimultaneousBidAuction parameters2ndPAuction truthTellingStrategyTuple
+  putStrLn "~~~~~~~~~~All pay Auction~~~~~~~~~~~"
+  printEquilibriumAllPayAuction parametersAllPayAuction allPayAuctionStrategyTuple
+  putStrLn "~~~~~~~~~~Japanese Auction~~~~~~~~~~"
+  printEquilibriumDynamicAuction parametersJapaneseAuction 10 japaneseAuctionStrategyTuple initialAction
+  putStrLn "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-main :: IO ()
-main = do
---  putStrLn "Current Auction: "
---  printEquilibriumCurrentAuction parametersCurrentAuction (currentAuctionShareOfValueStrategy 0.75)
---  putStrLn "First Price Auction: "
---  printEquilibriumSimultaneousBidAuction parametersFPAuction (bidShareOfValueStrategyTuple 0.75)
---  putStrLn "Second Price Auction: "
---  printEquilibriumSimultaneousBidAuction parameters2ndPAuction truthTellingStrategyTuple
---  putStrLn "All pay Auction: "
---  printEquilibriumAllPayAuction parametersAllPayAuction allPayAuctionStrategyTuple
-{-
-  putStrLn "~~~~~~~Simulate current auction outcome~~~~~~~"
-  putStrLn "List of expected bids: "
+onlySimulations = do
+  putStrLn "~~~~~~~~~~~~SIMULATIONS~~~~~~~~~~~~~"
+  putStrLn "~~~~~~~~~~Current Auction~~~~~~~~~~~"
+  putStrLn "List of players' expected outcomes: "
   let expectedOutcomeCurrent =  printSimulationCurrentAuction parametersCurrentAuction (currentAuctionShareOfValueStrategy 0.75)
   print expectedOutcomeCurrent
   putStrLn "Expected payment to auctioneer"
   print $ sum expectedOutcomeCurrent
-  putStrLn "~~~~~~~Simulate first price auction outcome~~~~~~~"
-  putStrLn "List of expected bids: "
-  let expectedOutcomeFirstPrice =  printSimulationSimultaneousBidAuction parametersFPAuction (bidShareOfValueStrategyTuple 0.75)
+  putStrLn "~~~~~~~~First Price Auction~~~~~~~~~"
+  putStrLn "List of players' expected outcomes: "
+  let expectedOutcomeFirstPrice =  printSimulationSimultaneousBidAuction parametersFPAuction (bidShareOfValueStrategyTuple 1)
   print expectedOutcomeFirstPrice
   putStrLn "Expected payment to auctioneer"
   print $ sum expectedOutcomeFirstPrice
-  putStrLn "~~~~~~~Simulate second price auction outcome~~~~~~~"
-  putStrLn "List of expected bids: "
+  putStrLn "~~~~~~~~Second Price Auction~~~~~~~~"
+  putStrLn "List of players' expected outcomes: "
   let expectedOutcomeSecondPrice =  printSimulationSimultaneousBidAuction parameters2ndPAuction truthTellingStrategyTuple
   print expectedOutcomeSecondPrice
   putStrLn "Expected payment to auctioneer"
   print $ sum expectedOutcomeSecondPrice
-  putStrLn "~~~~~~~Simulate all pay auction outcome~~~~~~~"
-  putStrLn "List of expected bids: "
+  putStrLn "~~~~~~~~~~All pay Auction~~~~~~~~~~~"
+  putStrLn "List of players' expected outcomes: "
   let expectedOutcomeAllPay =  printSimulationAllPayAuction parametersAllPayAuction allPayAuctionStrategyTuple
   print expectedOutcomeAllPay
   putStrLn "Expected payment to auctioneer"
   print $ sum expectedOutcomeAllPay
-
---}
-  putStrLn "~~~~~~~Equilibrium Dynamic Auction~~~~~~~"
-  printEquilibriumDynamicAuction parametersJapaneseAuction 10 japaneseAuctionStrategyTuple initialAction
-  putStrLn "~~~~~~~Show Full Output Dynamic Auction~~~~~~~"
-  printOutputDynamicAuction parametersJapaneseAuction 10 japaneseAuctionStrategyTuple initialAction
-  putStrLn "~~~~~~~Simulate Dynamic Auction~~~~~~~"
+  putStrLn "~~~~~~~~~~Japanese Auction~~~~~~~~~~"
   printSimulationRepeatedStageGame parametersJapaneseAuction 10 japaneseAuctionStrategyTuple initialAction
+  putStrLn "~~~~~~~Show Full Output Japanese Auction~~~~~~~"
+  printOutputDynamicAuction parametersJapaneseAuction 10 japaneseAuctionStrategyTuple initialAction
+
+
+main :: IO ()
+main = do
+  onlyEquilibria
+  onlySimulations
