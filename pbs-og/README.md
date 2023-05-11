@@ -57,6 +57,8 @@ The full battery of available analytics can be run by following the [Normal exec
 - `onlySimulations` to just run the simulation part (computationally lightweight);
 - `main` to run both.
 
+Further information about how to run the analytics can be found at [Running the analytics](#running-the-analytics).
+
 
 # Installation
 To run the model, it is necessary to have `haskell` and `stack` installed on your machine. Refer to the subsection [Addendum: Installing haskell](#addendum-installing-haskell) for instructions. A deeper dive into the code structure can be found in the [Code deep dive](#code-deep-dive) subsection.
@@ -429,7 +431,7 @@ In this game the best strategy is clearly (A,A1). Nevertheless, we need to suppl
 
 ## File structure
 
-The model is composed of several files. There are two branches, `master` and `dynamic-auctions`. The first one contains all of our models involving n-th (reserve) price auctions, whereas the second one contains the model code for Japanese auctions, which can be easily extended to other dynamic auction types. The file structure for both branches is the same:
+The model is composed of several files, all on branch `master`. The file structure is as follows:
 
 - The `app` folder contains `Main.hs`, where the `main` function is defined. This is the function executed when one gives `stack run` (cf. [Running the analytics](#running-the-analytics)).
 - The `pics` folder exists only for the purpose of this documentation file.
@@ -446,7 +448,7 @@ The code proper is contained in the `src` folder:
   ```
   Please refer to [Running the analytics](#running-the-analytics) for more information.
 - `Diagnostics.hs` contains a set of helper functions that can be used to display more or less information about equilibrium, player moves and overall state of the game. These are useful to 'debug' a game in case of conceptually unexpected outputs.
-- `Parametrization.hs` contains all the hardcoded exhogenous parameters to be fed to the model, such as auction reserve price, players' names, initial players' endowments etc.
+- `Parametrization.hs` contains all the hardcoded exogenous parameters to be fed to the model, such as auction reserve price, players' names, initial players' endowments etc.
 - `Types.hs` defines the types of many of the things we use in our model, such as private values, outcome of an auction, etc.
 
 As an extra perk, we included the file `NestedAuctions.hs`, which contains some initial experiments around recursive auction systems.
@@ -594,6 +596,8 @@ functionName parameters
 ```
 
 In particular, calling the function `main` in interactive mode will result in the same behavior of calling `stack run` in normal mode. Again, editing the source code and then hitting `:r` will trigger recompilation on the fly.
+
+As we remarked early in this document, `main` runs both the simulation and equilibrium checking for each auction. One can use the functions `onlyEquilibria` and `onlySimulations` to just run the simulations or the equilibrium checking, respectively, for all auctions.
 
 
 ## Results
